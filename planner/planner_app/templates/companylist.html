@@ -1,0 +1,14 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        {% for company in companys %}
+            <div>
+                <p>name: {{ company.name }}</p>
+                <p>Owner: {{ company.owner_company }}</p>
+                <p>active: {{ company.active }}</p>
+                <br><br>
+            </div>
+        {% endfor %}
+
+    {% endblock content %}

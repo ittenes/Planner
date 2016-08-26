@@ -1,0 +1,28 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <div>
+        <h1>ClIENTES LISTADO </h1>
+            <table border="1">
+                    <tr>
+                        <td>
+                        NAME
+                        </td>
+                        <td>
+                        COMPANY
+                        </td>
+                {% for client in clientslist %}
+                    <tr>
+                        <td>
+                            {{ client.name }}
+                        </td>
+                        <td>
+                            {{ client.company }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    {% endblock content %}

@@ -1,0 +1,45 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+
+        <h1>PROYECTOS LISTADO </h1>
+            <table border="1">
+                    <tr>
+                        <td>
+                        COMPANY
+                        </td>
+                        <td>
+                        TYPE USER
+                        </td>
+                        <td>
+                        NAME
+                        </td>
+                        <td>
+                        EMAIL
+                        </td>
+                        <td>
+                        PROVIDER
+                        </td>
+                {% for usercompany in usercompanys %}
+                    <tr>
+                        <td>
+                            {{ usercompany.company }}
+                        </td>
+                        <td>
+                            {{ usercompany.type_user }}
+                        </td>
+                        <td>
+                            {{ usercompany.name}}
+                        </td>
+                        <td>
+                            {{ usercompany.email }}
+                        </td>
+                        <td>
+                            {{ usercompany.provider }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endblock content %}

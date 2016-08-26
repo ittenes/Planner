@@ -1,0 +1,20 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <h1>ALTA DE HORARIO DE LA EMPRESA </h1>
+        <div>
+            <table>
+                <tr>
+                    <td>
+                        <form method="POST" class="post-form">{% csrf_token %}
+                            HORAS POR DIA {{ schedulecompanyform.as_p }}
+                            <button type="submit">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+    {% endblock content %}

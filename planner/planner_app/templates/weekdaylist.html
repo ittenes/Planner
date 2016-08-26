@@ -1,0 +1,28 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <div>
+        <h1> LISTADO DE DIAS Y EMPRESA </h1>
+            <table border="1">
+                    <tr>
+                        <td>
+                        DAY
+                        </td>
+                        <td>
+                        COMPANY
+                        </td>
+                {% for weekday in weekdaylist %}
+                    <tr>
+                        <td>
+                            {{ weekday.daywork }}
+                        </td>
+                        <td>
+                            {{ weekday.company }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    {% endblock content %}

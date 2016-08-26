@@ -1,0 +1,34 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <div>
+        <h1> LISTADO DE HORARIOS DE LA EMPRESA </h1>
+            <table border="1">
+                    <tr>
+                        <td>
+                        COMPANY
+                        </td>
+                        <td>
+                         DAY OF WEEK
+                        </td>
+                        <td>
+                        HOURS IN THE DAY
+                        </td>
+                {% for schedulecompany in schedulecompanylist %}
+                    <tr>
+                        <td>
+                            {{ schedulecompany.company }}
+                        </td>
+                        <td>
+                            {{ schedulecompany.company_week_day }}
+                        </td>
+                        <td>
+                            {{ schedulecompany.hours }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    {% endblock content %}

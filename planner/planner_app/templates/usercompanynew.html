@@ -1,0 +1,12 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <h1>New user of my company</h1>
+
+        <form method="POST" class="post-form">{% csrf_token %}
+            {{ myusercompanyform.as_p }}
+            <button type="submit">Save</button>
+        </form>
+
+    {% endblock content %}
