@@ -20,8 +20,9 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    #url(r'^api_app/', include('api_app.urls')),
-    url(r'^planner_app/', include('planner_app.urls')),
+    # url(r'^api_app/', include('api_app.urls')),
+    # url(r'^planner_app/', include('planner_app.urls')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'', include('planner_app.urls'))
 
 ]

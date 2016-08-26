@@ -2,7 +2,11 @@ from django.conf.urls import include, url
 
 from . import views
 
+from django.views.generic import TemplateView
+
 urlpatterns = [
+    #INICIO
+    url(r'^$', TemplateView.as_view(template_name='index.html')),
     # USER COMPANY
     url(r'^usercompany/list/', views.user_company_list, name='usercompanylist'),
     url(r'^usercompany/new/$', views.myusercompany, name='usercompanynew'),

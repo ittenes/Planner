@@ -134,7 +134,7 @@ def projects_list(request):
 def projectsnew(request):
 
     if request.method == "POST":
-        projectsform = ProjectForm(request.POST,request.FILES)
+        projectsform = ProjectForm(request.user, request.POST)
 
         if projectsform.is_valid():
             newproject = projectsform.save(commit=False)
@@ -143,7 +143,7 @@ def projectsnew(request):
             return redirect('views.projects_list', )
 
     else:
-        projectsform = ProjectForm(request=request)
+        projectsform = ProjectForm(request.user)
     return render(request, 'projects.html', {'projectsform': projectsform})
 
 
@@ -152,7 +152,8 @@ def projectsnew(request):
 # day list
 
 def weekday_list(request):
-    weekdaylist = WeekDay.objects.filter().order_by()
+    mycompany = Company.objects.get(owner_company=request.user.id)
+    weekdaylist = WeekDay.objects.filter(company=mycompany).order_by('daywork_id')
     return render(request, 'weekdaylist.html', {'weekdaylist': weekdaylist})
 
 # new day
@@ -208,16 +209,16 @@ def schedulecompanynew(request):
 
 def request_list(request):
     myrequest = request.user.id
-    requestlist = Request.objects.filter(user=myrequest).order_by('project')
+    requestlist = Request.objects.filter(user=myrequest).order_by('week_number', 'resource','project')
     return render(request, 'requestlist.html', {'requestlist': requestlist})
 
-# new day
+# new request
 
 
 def requestnew(request):
 
     if request.method == "POST":
-        requestform = RequestForm(request.POST, request.FILES)
+        requestform = RequestForm(request.user, request.POST)
 
         if requestform.is_valid():
             requestnew = requestform.save(commit=False)
@@ -227,7 +228,7 @@ def requestnew(request):
             return redirect('views.request_list', )
 
     else:
-        requestform = RequestForm(request=request)
+        requestform = RequestForm(request.user)
     return render(request, 'request.html', {'requestform': requestform})
 
 

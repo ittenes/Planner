@@ -8,7 +8,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-
+import datetime
 
 
 class AuthUser(models.Model):
@@ -95,13 +95,13 @@ class Provider(models.Model):
 
 
 class Request(models.Model):
-    user = models.ForeignKey('AuthUser', models.DO_NOTHING,blank=True, null=True)
-    project = models.ForeignKey('Project', models.DO_NOTHING, blank=True, null=True)
-    time = models.IntegerField(blank=True, null=True)
-    resource = models.ForeignKey('UserCompany', models.DO_NOTHING, blank=True, null=True)
-    day_week_in = models.IntegerField(blank=True, null=True)
-    day_week_out = models.IntegerField(blank=True, null=True)
-    week_number = models.IntegerField(blank=True, null=True)
+    user = models.ForeignKey('AuthUser', models.DO_NOTHING,blank=False, null=True)
+    project = models.ForeignKey('Project', models.DO_NOTHING, blank=False, null=True)
+    time = models.IntegerField(blank=False, null=True)
+    resource = models.ForeignKey('UserCompany', models.DO_NOTHING, blank=False, null=True)
+    day_week_in = models.IntegerField(blank=False, null=True)
+    day_week_out = models.IntegerField(max_length=1, blank=False, null=True)
+    week_number = models.IntegerField(max_length=1, blank=False, null=True)
     company = models.CharField(max_length=250,blank=True, null=True)
 
     class Meta:

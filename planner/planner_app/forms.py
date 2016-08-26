@@ -1,5 +1,5 @@
 from django import forms
-
+import datetime
 
 # USER COMPANY
 
@@ -22,19 +22,21 @@ class NewUserCompanyForm(forms.ModelForm):
 class UserTypeForm(forms.ModelForm):
     class Meta:
         model = UserType
-        fields = ('type_user','role')
+        fields = ('type_user', 'role')
+
 
 class MyUserCompanyForm(forms.ModelForm):
 
     class Meta:
         model = UserCompany
-        fields = ('first_name', 'last_name', 'email','type_user',)
+        fields = ('first_name', 'last_name', 'email', 'type_user',)
 
     def __init__(self, *args, **kwargs):
         super(MyUserCompanyForm, self).__init__(*args, **kwargs)
         self.queryset = forms.ModelChoiceField(queryset=UserType.objects.all())
 
 # COMPANYS
+
 
 class CompanyForm(forms.ModelForm):
     class Meta:
@@ -56,11 +58,18 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ('client', 'name',)
-    def __init__(self, request, *args, **kwargs):
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
         # request is a required parameter for this form.
-        super (ProjectForm,self ).__init__(*args,**kwargs)
-        mycompany = Company.objects.get(owner_company=request.user.id)
-        self.fields['client'].queryset = Client.objects.filter(company = mycompany)
+        super(ProjectForm, self).__init__(*args, **kwargs)
+        iduser = AuthUser.objects.filter(email=self.user).values('pk')
+        print (iduser)
+        mycompany = Company.objects.filter(
+            owner_company=iduser).values_list('id', flat=True)
+        print (mycompany)
+        self.fields['client'].queryset = Client.objects.filter(
+            company__in=mycompany)
 
 
 # DAY THAT THE COMPANY WORK
@@ -70,18 +79,25 @@ class WeekDayForm(forms.ModelForm):
         model = WeekDay
         fields = ('daywork',)
 
-    #se reliza la funcion para coar el formauliro en su creación se pasa como parametro user, que viene de view. filtramos usuario, filtramos compañia, sacando solo los valores en una lista con value_list('valor', flat=true)
+    # se reliza la funcion para coar el formauliro en su creación se pasa como
+    # parametro user, que viene de view.
+    # Filtramos usuario, filtramos compañia, sacando solo los valores en una
+    # lista con value_list('valor',flat=true)
+
     def __init__(self, user, *args, **kwargs):
-        self.user=user
+        self.user = user
         # request is a required parameter for this form.
-        super (WeekDayForm,self ).__init__(*args,**kwargs)
-        iduser = AuthUser.objects.filter(email = self.user).values('pk')
+        super(WeekDayForm, self).__init__(*args, **kwargs)
+        iduser = AuthUser.objects.filter(email=self.user).values('pk')
         print (iduser)
-        mycompany = Company.objects.filter(owner_company=iduser).values_list('name', flat=True)
+        mycompany = Company.objects.filter(
+            owner_company=iduser).values_list('name', flat=True)
         print (mycompany)
-        mydays =  WeekDay.objects.filter(company = mycompany).values_list('daywork', flat=True)
+        mydays = WeekDay.objects.filter(
+            company=mycompany).values_list('daywork', flat=True)
         print (mydays)
-        self.fields['daywork'].queryset = DayName.objects.exclude(dayname__in=mydays)
+        self.fields['daywork'].queryset = DayName.objects.exclude(
+            dayname__in=mydays)
 
 
 # DAY THAT THE COMPANY WORK - COMPANY SCHEDULE + HOURS
@@ -92,17 +108,18 @@ class ScheduleCompanyForm(forms.ModelForm):
         fields = ('company_week_day', 'hours')
 
     def __init__(self, user, *args, **kwargs):
-        self.user=user
+        self.user = user
         # request is a required parameter for this form.
-        super (ScheduleCompanyForm,self ).__init__(*args,**kwargs)
-        iduser = AuthUser.objects.filter(email = self.user).values('pk')
+        super(ScheduleCompanyForm, self).__init__(*args, **kwargs)
+        iduser = AuthUser.objects.filter(email=self.user).values('pk')
         print (iduser)
-        mycompany = Company.objects.filter(owner_company=iduser).values_list('name', flat=True)
+        mycompany = Company.objects.filter(
+            owner_company=iduser).values_list('name', flat=True)
         print (mycompany)
-        mydayscomp =  ScheduleCompany.objects.filter(company = mycompany).values_list('company_week_day', flat=True)
+        mydayscomp = ScheduleCompany.objects.filter(
+            company=mycompany).values_list('company_week_day', flat=True)
         print (mydayscomp)
-        self.fields['company_week_day'].queryset = WeekDay.objects.exclude(daywork__in=mydayscomp)
-
+        self.fields['company_week_day'].queryset = WeekDay.objects.filter(company=mycompany).exclude(id__in=mydayscomp)
 
 
 # REQUEST
@@ -110,15 +127,35 @@ class ScheduleCompanyForm(forms.ModelForm):
 class RequestForm(forms.ModelForm):
     class Meta:
         model = Request
-        fields = ('project', 'time', 'resource','day_week_in','day_week_out','week_number',)
+        fields = ('project', 'time', 'resource', 'day_week_in',
+                  'day_week_out', 'week_number',)
 
-    def __init__(self, request, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
         # request is a required parameter for this form.
-        super (RequestForm,self ).__init__(*args,**kwargs)
-        mycompany = Company.objects.get(owner_company=request.user.id)
-        self.fields['resource'].queryset = UserCompany.objects.filter(company = mycompany)
+        super(RequestForm, self).__init__(*args, **kwargs)
+        # only show the resources of de user company
+        iduser = AuthUser.objects.filter(email=self.user).values('pk')
+        print (iduser)
+        mycompany_id = Company.objects.filter(
+            owner_company=iduser).values_list('id', flat=True)
+        mycompany = Company.objects.filter(
+            owner_company=iduser).values_list('name', flat=True)
+        print (mycompany)
+        self.fields['project'].queryset = Project.objects.filter(
+            company=mycompany)
+        self.fields['resource'].queryset = UserCompany.objects.filter(
+            company_id=mycompany_id)
+        # select de week's number. only allow select this week or one of the
+        # the next five
 
-
+        today = datetime.date.today()
+        print (today)
+        week = today.isocalendar()[1]
+        print (week)
+        weekfive = [(week + 1, week + 1), (week + 2, week + 2), (week + 3, week + 3), (week + 4, week + 4), (week + 5, week + 5)]
+        print (weekfive)
+        self.fields['week_number'] = forms.ChoiceField(widget = forms.Select(),choices=weekfive, required = True)
 
 
 
