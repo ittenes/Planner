@@ -22,10 +22,11 @@ from .forms import WeekDayForm
 from .forms import ScheduleCompanyForm
 from .forms import RequestForm
 from .forms import UserHolidaysForm
-
+from .forms import ScheduleCompanyUserForm
 
 # USER COMPANY
 # users list
+
 
 def user_company_list(request):
     myuser = Company.objects.get(owner_company=request.user.id)
@@ -38,17 +39,39 @@ def myusercompany(request):
     if request.method == "POST":
 
         myusercompanyform = MyUserCompanyForm(request.POST, )
-        if myusercompanyform.is_valid():
+        # schedulecompanyuserform = ScheduleCompanyUserForm(request.POST)
+
+        if myusercompanyform.is_valid():# and schedulecompanyuserform.is_valid():
             myuserform = myusercompanyform.save(commit=False)
             myuserform.company = Company.objects.get(
                 owner_company=request.user.id)
             myuserform.user = AuthUser.objects.get(id=request.user.id)
             myuserform.save()
+
+            # Now insert the schedule of the company by defult
+
+# OJOOOOOOOO REVISAR ESTA PARTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            # myschedule = schedulecompanyuserform.save(commit=False)
+            # print(myschedule)
+            # mycompany = Company.objects.get(owner_company=request.user.id)
+            # print(mycompany)
+            # daysmycoms = ScheduleCompany.objects.filter(
+            #     company=mycompany).value_list('company_week_day', flat=True)
+            # for daysmycom in daysmycoms:
+            #     if daysmycom > 0:
+            #         myschedule.user = UserCompany.objects.filter(
+            #             email=request.user.id)
+            #         myschedule.schedule_company = daysmycoms
+            #         myschedule.hours = ScheduleCompany.objets.filter(
+            #             company=mycompany, company_week_day=daysmycom).value('hours')
+            # myschedule.save()
+
             return redirect('views.user_company_list',)
 
     else:
         myusercompanyform = MyUserCompanyForm()
-
+        schedulecompanyuserform = ScheduleCompanyUserForm()
     return render(request, 'usercompanynew.html', {'myusercompanyform': myusercompanyform})
 
 

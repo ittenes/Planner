@@ -3,7 +3,7 @@ import datetime
 
 # USER COMPANY
 
-from .models import UserCompany, UserType, Company, Client, Project, WeekDay, ScheduleCompany, Request, AuthUser, DayName, UserHolidays
+from .models import UserCompany, UserType, Company, Client, Project, WeekDay, ScheduleCompany, Request, AuthUser, DayName, UserHolidays, ScheduleCompanyUser
 
 
 class UserCompanyForm(forms.ModelForm):
@@ -151,14 +151,17 @@ class RequestForm(forms.ModelForm):
         print (today)
         week = today.isocalendar()[1]
         print (week)
-        weekfive = [(week + 1, week + 1), (week + 2, week + 2),
-                    (week + 3, week + 3), (week + 4, week + 4), (week + 5, week + 5)]
+        weekfive = [(week + 1, week + 1),
+                    (week + 2, week + 2),
+                    (week + 3, week + 3),
+                    (week + 4, week + 4),
+                    (week + 5, week + 5)]
         print (weekfive)
         self.fields['week_number'] = forms.ChoiceField(
             widget=forms.Select(), choices=weekfive, required=True)
 
 
-# USER HOLLYDAYS - ScheduleCompanyUser
+# USER HOLLYDAYS -
 
 class UserHolidaysForm(forms.ModelForm):
     class Meta:
@@ -189,13 +192,20 @@ class UserHolidaysForm(forms.ModelForm):
         print (year)
         weeklast = datetime.date(year, 12, 31).isocalendar()[1]
         print (weeklast)
-        keyallweeks = list(range(weeknow+1, weeklast))
-        valueallweeks = list(range(weeknow+1, weeklast))
+        keyallweeks = list(range(weeknow + 1, weeklast))
+        valueallweeks = list(range(weeknow + 1, weeklast))
         twotuple = []
         for keyallweek, valueallweek in zip(keyallweeks, valueallweeks):
             if weeklast > 0:
-                twotuple += [(keyallweek,valueallweek)]
+                twotuple += [(keyallweek, valueallweek)]
         print (twotuple)
-        # self.fields['week'] = forms.DateField(widget=forms.SelectDateWidget(week=dictallweek))
-        self.fields['week'] = forms.ChoiceField(widget=forms.Select(), choices=twotuple, required=True)
+        self.fields['week'] = forms.ChoiceField(
+            widget=forms.Select(), choices=twotuple, required=True)
 
+
+# USER SCHEDULE - ScheduleCompanyUser
+
+class ScheduleCompanyUserForm(forms.ModelForm):
+    class Meta:
+        model = ScheduleCompanyUser
+        fields = ('user', 'schedule_company', 'hours')

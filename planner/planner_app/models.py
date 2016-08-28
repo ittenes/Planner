@@ -136,7 +136,6 @@ class ScheduleCompanyUser(models.Model):
     user = models.ForeignKey('UserCompany', models.DO_NOTHING, null=True)
     schedule_company = models.ForeignKey(ScheduleCompany, models.DO_NOTHING)
     hours = models.IntegerField()
-    week = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
