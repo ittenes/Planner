@@ -1,0 +1,20 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <h1>VACACIONES ALTA </h1>
+        <div>
+            <table>
+                <tr>
+                    <td>
+                        <form method="POST" class="post-form">{% csrf_token %}
+                            INSERTE LA NUEVAS VACACIONES {{ userholidaysform.as_p }}
+                            <button type="submit">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+    {% endblock content %}

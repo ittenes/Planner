@@ -3,7 +3,7 @@ import datetime
 
 # USER COMPANY
 
-from .models import UserCompany, UserType, Company, Client, Project, WeekDay, ScheduleCompany, Request, AuthUser, DayName
+from .models import UserCompany, UserType, Company, Client, Project, WeekDay, ScheduleCompany, Request, AuthUser, DayName, UserHolidays
 
 
 class UserCompanyForm(forms.ModelForm):
@@ -69,7 +69,7 @@ class ProjectForm(forms.ModelForm):
             owner_company=iduser).values_list('id', flat=True)
         print (mycompany)
         self.fields['client'].queryset = Client.objects.filter(
-            company__in=mycompany)
+            company=mycompany)
 
 
 # DAY THAT THE COMPANY WORK
@@ -91,7 +91,7 @@ class WeekDayForm(forms.ModelForm):
         iduser = AuthUser.objects.filter(email=self.user).values('pk')
         print (iduser)
         mycompany = Company.objects.filter(
-            owner_company=iduser).values_list('name', flat=True)
+            owner_company=iduser).values_list('id', flat=True)
         print (mycompany)
         mydays = WeekDay.objects.filter(
             company=mycompany).values_list('daywork', flat=True)
@@ -113,13 +113,13 @@ class ScheduleCompanyForm(forms.ModelForm):
         super(ScheduleCompanyForm, self).__init__(*args, **kwargs)
         iduser = AuthUser.objects.filter(email=self.user).values('pk')
         print (iduser)
-        mycompany = Company.objects.filter(
-            owner_company=iduser).values_list('name', flat=True)
+        mycompany = Company.objects.get(owner_company=iduser)
         print (mycompany)
         mydayscomp = ScheduleCompany.objects.filter(
             company=mycompany).values_list('company_week_day', flat=True)
         print (mydayscomp)
-        self.fields['company_week_day'].queryset = WeekDay.objects.filter(company=mycompany).exclude(id__in=mydayscomp)
+        self.fields['company_week_day'].queryset = WeekDay.objects.filter(
+            company=mycompany).exclude(id__in=mydayscomp)
 
 
 # REQUEST
@@ -137,15 +137,13 @@ class RequestForm(forms.ModelForm):
         # only show the resources of de user company
         iduser = AuthUser.objects.filter(email=self.user).values('pk')
         print (iduser)
-        mycompany_id = Company.objects.filter(
-            owner_company=iduser).values_list('id', flat=True)
         mycompany = Company.objects.filter(
-            owner_company=iduser).values_list('name', flat=True)
+            owner_company=iduser).values_list('id', flat=True)
         print (mycompany)
         self.fields['project'].queryset = Project.objects.filter(
             company=mycompany)
         self.fields['resource'].queryset = UserCompany.objects.filter(
-            company_id=mycompany_id)
+            company=mycompany)
         # select de week's number. only allow select this week or one of the
         # the next five
 
@@ -153,10 +151,51 @@ class RequestForm(forms.ModelForm):
         print (today)
         week = today.isocalendar()[1]
         print (week)
-        weekfive = [(week + 1, week + 1), (week + 2, week + 2), (week + 3, week + 3), (week + 4, week + 4), (week + 5, week + 5)]
+        weekfive = [(week + 1, week + 1), (week + 2, week + 2),
+                    (week + 3, week + 3), (week + 4, week + 4), (week + 5, week + 5)]
         print (weekfive)
-        self.fields['week_number'] = forms.ChoiceField(widget = forms.Select(),choices=weekfive, required = True)
+        self.fields['week_number'] = forms.ChoiceField(
+            widget=forms.Select(), choices=weekfive, required=True)
 
 
+# USER HOLLYDAYS - ScheduleCompanyUser
 
+class UserHolidaysForm(forms.ModelForm):
+    class Meta:
+        model = UserHolidays
+        fields = ('user', 'schedule_company', 'hour', 'week')
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+
+        super(UserHolidaysForm, self).__init__(*args, **kwargs)
+        iduser = AuthUser.objects.filter(email=self.user).values('pk')
+        print (iduser)
+        mycompany = Company.objects.filter(
+            owner_company=iduser).values_list('id', flat=True)
+        print (mycompany)
+        daysmycompany = ScheduleCompany.objects.filter(
+            company__in=mycompany).values_list('company_week_day', flat=True)
+        print (daysmycompany)
+        self.fields['schedule_company'].queryset = ScheduleCompany.objects.filter(
+            company__in=mycompany)
+
+        # calculate how many week there are from now to year end
+        today = datetime.date.today()
+        print (today)
+        weeknow = today.isocalendar()[1]
+        year = today.isocalendar()[0]
+        print (weeknow)
+        print (year)
+        weeklast = datetime.date(year, 12, 31).isocalendar()[1]
+        print (weeklast)
+        keyallweeks = list(range(weeknow+1, weeklast))
+        valueallweeks = list(range(weeknow+1, weeklast))
+        twotuple = []
+        for keyallweek, valueallweek in zip(keyallweeks, valueallweeks):
+            if weeklast > 0:
+                twotuple += [(keyallweek,valueallweek)]
+        print (twotuple)
+        # self.fields['week'] = forms.DateField(widget=forms.SelectDateWidget(week=dictallweek))
+        self.fields['week'] = forms.ChoiceField(widget=forms.Select(), choices=twotuple, required=True)
 

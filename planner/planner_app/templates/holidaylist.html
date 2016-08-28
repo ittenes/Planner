@@ -1,0 +1,40 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <div>
+        <h1>VACACIONES LISTADO </h1>
+            <table border="1">
+                    <tr>
+                        <td>
+                        USER
+                        </td>
+                        <td>
+                        SCHEDULE
+                        </td>
+                        <td>
+                        WEEK
+                        </td>
+                        <td>
+                        HORAS
+                        </td>
+                {% for holiday in holidaylist %}
+                    <tr>
+                        <td>
+                            {{ holiday.user }}
+                        </td>
+                        <td>
+                            {{ holiday.schedule_company }}
+                        </td>
+                        <td>
+                            {{ holiday.week }}
+                        </td>
+                        <td>
+                            {{ holiday.hours }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    {% endblock content %}

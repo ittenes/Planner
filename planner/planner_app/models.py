@@ -72,7 +72,7 @@ class Planning(models.Model):
 class Project(models.Model):
     client = models.ForeignKey(Client, models.DO_NOTHING,)
     name = models.CharField(max_length=50, blank=True, null=True)
-    company = models.CharField(max_length=250,blank=True, null=True)
+    company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
 
 
     def __str__(self): return self.name
@@ -84,7 +84,7 @@ class Project(models.Model):
 
 
 class Provider(models.Model):
-    company = models.CharField(max_length=250)
+    company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
     cif = models.IntegerField(blank=True, null=True)
     name = models.CharField(max_length=50)
 
@@ -99,10 +99,10 @@ class Request(models.Model):
     project = models.ForeignKey('Project', models.DO_NOTHING, blank=False, null=True)
     time = models.IntegerField(blank=False, null=True)
     resource = models.ForeignKey('UserCompany', models.DO_NOTHING, blank=False, null=True)
-    day_week_in = models.IntegerField(blank=False, null=True)
-    day_week_out = models.IntegerField(max_length=1, blank=False, null=True)
-    week_number = models.IntegerField(max_length=1, blank=False, null=True)
-    company = models.CharField(max_length=250,blank=True, null=True)
+    day_week_in = models.IntegerField(null=True)
+    day_week_out = models.IntegerField(blank=False, null=True)
+    week_number = models.IntegerField(blank=False, null=True)
+    company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
 
     class Meta:
         managed = True
@@ -120,7 +120,11 @@ class Role(models.Model):
 class ScheduleCompany(models.Model):
     company_week_day = models.ForeignKey('WeekDay', models.DO_NOTHING)
     hours = models.IntegerField()
-    company = models.CharField(max_length=250,blank=True, null=True)
+    company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
+
+    def __str__(self):
+        srtday = str(self.company_week_day)
+        return srtday
 
     class Meta:
         managed = True
@@ -129,9 +133,10 @@ class ScheduleCompany(models.Model):
 
 
 class ScheduleCompanyUser(models.Model):
-    user = models.ForeignKey('UserCompany', models.DO_NOTHING, db_column='user',)
+    user = models.ForeignKey('UserCompany', models.DO_NOTHING, null=True)
     schedule_company = models.ForeignKey(ScheduleCompany, models.DO_NOTHING)
     hours = models.IntegerField()
+    week = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
@@ -141,7 +146,7 @@ class ScheduleCompanyUser(models.Model):
 
 
 class UserCompany(models.Model):
-    company = models.ForeignKey('Company', models.DO_NOTHING)
+    company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
     type_user = models.ForeignKey('UserType', models.DO_NOTHING,)
     first_name = models.CharField(max_length=50,blank=True)
     last_name = models.CharField(max_length=50,blank=True, null=True)
@@ -159,12 +164,16 @@ class UserCompany(models.Model):
 
 
 class UserHolidays(models.Model):
-    user = models.ForeignKey('UserCompany', models.DO_NOTHING, blank=True, null=True)
-    date = models.DateField(blank=True, null=True)
+    user = models.ForeignKey('UserCompany', models.DO_NOTHING, null=True)
+    schedule_company = models.ForeignKey(ScheduleCompany, models.DO_NOTHING)
+    hour = models.IntegerField(null=True)
+    week = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = True
         db_table = 'user_holidays'
+        unique_together = (('user', 'schedule_company','week'),)
+
 
 
 class UserType(models.Model):
@@ -181,7 +190,7 @@ class UserType(models.Model):
 
 class WeekDay(models.Model):
     daywork = models.ForeignKey('DayName', models.DO_NOTHING)
-    company = models.CharField(max_length=250)
+    company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
 
     def __str__(self):
         daynames = str(self.daywork)

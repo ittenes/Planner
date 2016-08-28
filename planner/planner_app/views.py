@@ -10,6 +10,7 @@ from .models import Project
 from .models import WeekDay
 from .models import ScheduleCompany
 from .models import Request
+from .models import UserHolidays
 
 from .forms import UserCompanyForm
 from .forms import NewUserCompanyForm
@@ -20,6 +21,7 @@ from .forms import ProjectForm
 from .forms import WeekDayForm
 from .forms import ScheduleCompanyForm
 from .forms import RequestForm
+from .forms import UserHolidaysForm
 
 
 # USER COMPANY
@@ -67,12 +69,10 @@ def companynew(request):
         form_usercompanyactive = UserCompanyForm(request.POST)
         print('hola')
         if form_company.is_valid() and form_usercompanyactive.is_valid():
-            print('inicio')
             company = form_company.save(commit=False)
             company.owner_company = AuthUser.objects.get(id=request.user.id)
             company.active = "1"
             company.save()
-            print('medio')
             # when creta the new company save de user in de user_company how
             #    owner of the company
             usercompany = form_usercompanyactive.save(commit=False)
@@ -82,7 +82,6 @@ def companynew(request):
             usercompany.email = AuthUser.objects.get(email=request.user.email)
             usercompany.user = AuthUser.objects.get(id=request.user.id)
             usercompany.save()
-            print('fnial')
             return redirect('views.comapnylist',)
 
     else:
@@ -124,8 +123,8 @@ def clientsnew(request):
 # Projects list
 
 def projects_list(request):
-    myproject = Company.objects.get(owner_company=request.user.id)
-    projectslist = Project.objects.filter(company=myproject).order_by('client')
+    mycompany = Company.objects.get(owner_company=request.user.id)
+    projectslist = Project.objects.filter(company=mycompany).order_by('client')
     return render(request, 'projectslist.html', {'projectslist': projectslist})
 
 # create new project
@@ -138,7 +137,8 @@ def projectsnew(request):
 
         if projectsform.is_valid():
             newproject = projectsform.save(commit=False)
-            newproject.company = Company.objects.get(owner_company=request.user.id)
+            newproject.company = Company.objects.get(
+                owner_company=request.user.id)
             newproject.save()
             return redirect('views.projects_list', )
 
@@ -153,7 +153,7 @@ def projectsnew(request):
 
 def weekday_list(request):
     mycompany = Company.objects.get(owner_company=request.user.id)
-    weekdaylist = WeekDay.objects.filter(company=mycompany).order_by('daywork_id')
+    weekdaylist = WeekDay.objects.filter(company=mycompany).order_by('daywork')
     return render(request, 'weekdaylist.html', {'weekdaylist': weekdaylist})
 
 # new day
@@ -162,7 +162,8 @@ def weekday_list(request):
 def weekdaynew(request):
 
     if request.method == "POST":
-        #se apasan en el orden correcto request.user primero y prequest.POST despes. El form primero se ejcuta el user y despues se pasa el POST
+        # se apasan en el orden correcto request.user primero y prequest.POST
+        # despes. El form primero se ejcuta el user y despues se pasa el POST
         weekdayform = WeekDayForm(request.user, request.POST)
 
         if weekdayform.is_valid():
@@ -181,8 +182,9 @@ def weekdaynew(request):
 # Company Schedule list
 
 def schedulecompany_list(request):
-    myschedule = Company.objects.get(owner_company=request.user.id)
-    schedulecompanylist = ScheduleCompany.objects.filter(company=myschedule).order_by('company_week_day')
+    mycompany = Company.objects.get(owner_company=request.user.id)
+    schedulecompanylist = ScheduleCompany.objects.filter(
+        company=mycompany).order_by('company_week_day')
     return render(request, 'schedulecompanylist.html', {'schedulecompanylist': schedulecompanylist})
 
 # new day
@@ -194,7 +196,8 @@ def schedulecompanynew(request):
         schedulecompanyform = ScheduleCompanyForm(request.user, request.POST)
         if schedulecompanyform.is_valid():
             schedule = schedulecompanyform.save(commit=False)
-            schedule.company = Company.objects.get(owner_company=request.user.id)
+            schedule.company = Company.objects.get(
+                owner_company=request.user.id)
             schedule.save()
             return redirect('views.schedulecompany_list', )
 
@@ -208,8 +211,9 @@ def schedulecompanynew(request):
 # Request list
 
 def request_list(request):
-    myrequest = request.user.id
-    requestlist = Request.objects.filter(user=myrequest).order_by('week_number', 'resource','project')
+    myuser = request.user.id
+    requestlist = Request.objects.filter(user=myuser).order_by(
+        'week_number', 'resource', 'project')
     return render(request, 'requestlist.html', {'requestlist': requestlist})
 
 # new request
@@ -223,7 +227,8 @@ def requestnew(request):
         if requestform.is_valid():
             requestnew = requestform.save(commit=False)
             requestnew.user = AuthUser.objects.get(id=request.user.id)
-            requestnew.company = Company.objects.get(owner_company=request.user.id)
+            requestnew.company = Company.objects.get(
+                owner_company=request.user.id)
             requestnew.save()
             return redirect('views.request_list', )
 
@@ -232,9 +237,30 @@ def requestnew(request):
     return render(request, 'request.html', {'requestform': requestform})
 
 
+# USER HOLIDAYS - ScheduleCompanyUser
+
+ # holiday list
+
+def userholidays_list(request):
+    mycompany = Company.objects.get(owner_company=request.user.id)
+    users = UserCompany.objects.filter(
+        company=mycompany).values_list('pk', flat=True)
+    holidaylist = UserHolidays.objects.filter(
+        user__in=users).order_by('week')
+    return render(request, 'holidaylist.html', {'holidaylist': holidaylist})
+
+# new holiday
 
 
+def userholidaysnew(request):
 
+    if request.method == "POST":
+        userholidaysform = UserHolidaysForm(request.user, request.POST)
 
+        if userholidaysform.is_valid():
+            userholidaysform.save()
+            return redirect('views.schedulecompanyuser_list', )
 
-
+    else:
+        userholidaysform = UserHolidaysForm(request.user)
+    return render(request, 'holiday.html', {'userholidaysform': userholidaysform})
