@@ -208,4 +208,13 @@ class UserHolidaysForm(forms.ModelForm):
 class ScheduleCompanyUserForm(forms.ModelForm):
     class Meta:
         model = ScheduleCompanyUser
-        fields = ('user', 'schedule_company', 'hours')
+        fields = ()
+
+
+
+
+
+
+
+
+
