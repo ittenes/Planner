@@ -25,7 +25,7 @@ from .forms import RequestForm
 from .forms import UserHolidaysForm
 from .forms import ScheduleCompanyUserForm
 
-# USER COMPANY
+# USER COMPANY AND DEFAULT USER SCHEDULE
 # users list
 
 
@@ -34,6 +34,8 @@ def user_company_list(request):
     usercompanys = UserCompany.objects.filter(company=myuser).order_by()
     return render(request, 'usercompanylist.html',
                   {'usercompanys': usercompanys})
+
+# users create anda crate de default user schedule
 
 
 def myusercompany(request):
@@ -48,79 +50,29 @@ def myusercompany(request):
         user = UserCompany.objects.latest('id')
         print(user)
 
-        #formularios
+        # formularios
         myusercompanyform = MyUserCompanyForm(request.POST)
-        s_c_u_form = ScheduleCompanyUserForm(request.POST)
 
-        if myusercompanyform.is_valid():# and s_c_u_form.is_valid():
+        if myusercompanyform.is_valid():
             myuserform = myusercompanyform.save(commit=False)
             myuserform.company = Company.objects.get(
                 owner_company=request.user.id)
             myuserform.user = AuthUser.objects.get(id=request.user.id)
             myuserform.save()
 
-            # # Now insert the schedule of the company by defult
-            # SEGUNDO INTENTO
-
-            # for e in daysmycoms:
-            #     myschedule = s_c_u_form.save(commit=False)
-            #     myschedule.user = UserCompany.objects.latest('id')
-            #     myschedule.schedule_company = ScheduleCompany.objects.get(company=mycompany, company_week_day=e)
-            #     myschedule.hour = ScheduleCompany.objects.values_list('hours', flat=True).get(company=mycompany, company_week_day=e)
-            #     myschedule.save()
-
-            # return redirect('views.user_company_list',)
-
-
-#========================================================
-            # for e in daysmycoms:
-            #     ScheduleCompanyUser.objects.create(user = UserCompany.objects.values_list('first_name', flat=True).latest('id'), schedule_company=ScheduleCompany.objects.values_list('company_week_day', flat=True).get(company=mycompany, company_week_day=e), hours=ScheduleCompany.objects.values_list('hours', flat=True).get(company=mycompany, company_week_day=e),)
-
-
-#========================================================
-
             instances = [ScheduleCompanyUser(
-                user = UserCompany.objects.latest('id'),
-                schedule_company = ScheduleCompany.objects.get(company=mycompany, company_week_day=e),
-                hour = ScheduleCompany.objects.values_list('hours', flat=True).get(company=mycompany, company_week_day=e),
-                )
-                         for e in daysmycoms
-                         ]
+                user=UserCompany.objects.latest('id'),
+                schedule_company=ScheduleCompany.objects.get(
+                    company=mycompany, company_week_day=e),
+                hour=ScheduleCompany.objects.values_list('hours', flat=True).get(
+                    company=mycompany, company_week_day=e),
+            )
+                for e in daysmycoms
+            ]
 
             ScheduleCompanyUser.objects.bulk_create(instances)
 
-#========================================================
-
-            # twotuple = []
-            # for e in daysmycoms:
-            #     user_v = UserCompany.objects.values_list('pk', flat=True).latest('id')
-            #     schedule_company_v = ScheduleCompany.objects.values_list('company_week_day', flat=True).get(company=mycompany, company_week_day=e)
-
-            #     hours_v = ScheduleCompany.objects.values_list('hours', flat=True).get(
-            #         company=mycompany, company_week_day=e)
-            #     print(user_v)
-            #     print(schedule_company_v)
-            #     print(hours_v)
-            #     twotuple += [(user_v, schedule_company_v, hours_v)]
-            # print(twotuple)
-
-            # objs = [ScheduleCompanyUser(twotuple)]
-            # ScheduleCompanyUser.objects.bulk_create(objs)
-
-            # INTENTO DE CREAR EL HORARRIO POR DEFECTO DEL USUAURIO COMO EL DE LA EMRESA
-            # NO HE PODIDO REVISAR EN OTRO MOMENTO Y ESTUDIAR COMO SE PUEDE
-            # HACERR
-
-            # for daysmycom in daysmycom:
-            #     myschedule = schedulecompanyuserform.save(commit=False)
-            #     myschedule.user = UserCompany.objects.filter(
-            #         user=request.user.id)
-            #     myschedule.schedule_company = ScheduleCompany.objects.get(company=mycompany, company_week_day=daysmycom)
-            #     myschedule.hours = ScheduleCompany.objets.get(
-            #         company=mycompany, company_week_day=daysmycom).value('hours')
-            #     myschedule.save()
-
-            # return redirect('views.user_company_list',)
+            return redirect('views.user_company_list',)
 
     else:
         myusercompanyform = MyUserCompanyForm()
