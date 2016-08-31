@@ -293,7 +293,7 @@ def userholidaysnew(request):
     return render(request, 'holiday.html', {'userholidaysform': userholidaysform})
 
 
-# SCHEDULE USER  - ScheduleCompanyUser
+# SCHEDULE USER  - ScheduleCompanyUser NO ESTÁ HECHA LA PAG. HAY QUE HACER LA PG DE LISTADO Y EDICION DE LAS HORAS
 
 # schedule user list
 
@@ -314,10 +314,47 @@ def scheduleusernew(request):
     if request.method == "POST":
         scheduleuserform = UserHolidaysForm(request.user, request.POST)
 
-        if userholidaysform.is_valid():
-            userholidaysform.save()
-            return redirect('views.schedulecompanyuser_list', )
+        if scheduleuserform.is_valid():
+            scheduleuserform.save()
+            return redirect('views.scheduleuserform_list', )
 
     else:
-        userholidaysform = UserHolidaysForm(request.user)
-    return render(request, 'holiday.html', {'userholidaysform': userholidaysform})
+        scheduleuserform = UserHolidaysForm(request.user)
+    return render(request, 'scheduleuserform.html', {'scheduleuserform': scheduleuserform})
+
+
+
+# CREACIÓN DE PLANIFICACIÓN
+
+# Request list
+
+def planning(request):
+
+    mycompany = Company.objects.get(owner_company=request.user.id)
+
+
+    requestlist = Request.objects.filter(company=mycompany).order_by(
+        'week_number', 'resource', 'project')
+    return render(request, 'requestlist.html', {'requestlist': requestlist})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

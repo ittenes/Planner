@@ -103,6 +103,7 @@ class Request(models.Model):
     day_week_out = models.IntegerField(blank=False, null=True)
     week_number = models.IntegerField(blank=False, null=True)
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
+    planned = models.BooleanField(default=False)
 
     class Meta:
         managed = True
