@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+import datetime
 # Create your views here.
 
 from .models import UserCompany
@@ -12,6 +13,7 @@ from .models import ScheduleCompany
 from .models import Request
 from .models import UserHolidays
 from .models import ScheduleCompanyUser
+from .models import Planning
 
 from .forms import UserCompanyForm
 from .forms import NewUserCompanyForm
@@ -245,9 +247,9 @@ def request_list(request):
 
 # new request
 
-
-def requestnew(request):
-
++6
+def requestnew(request):+6
++6
     if request.method == "POST":
         requestform = RequestForm(request.user, request.POST)
 
@@ -293,7 +295,8 @@ def userholidaysnew(request):
     return render(request, 'holiday.html', {'userholidaysform': userholidaysform})
 
 
-# SCHEDULE USER  - ScheduleCompanyUser NO ESTÁ HECHA LA PAG. HAY QUE HACER LA PG DE LISTADO Y EDICION DE LAS HORAS
+# SCHEDULE USER  - ScheduleCompanyUser NO ESTÁ HECHA LA PAG. HAY QUE HACER
+# LA PG DE LISTADO Y EDICION DE LAS HORAS
 
 # schedule user list
 
@@ -323,7 +326,6 @@ def scheduleusernew(request):
     return render(request, 'scheduleuserform.html', {'scheduleuserform': scheduleuserform})
 
 
-
 # CREACIÓN DE PLANIFICACIÓN
 
 # Request list
@@ -332,29 +334,165 @@ def planning(request):
 
     mycompany = Company.objects.get(owner_company=request.user.id)
 
+    # saber que semana es hoy
+    today = datetime.date.today()
+    weekpro = today.isocalendar()[1]
 
-    requestlist = Request.objects.filter(company=mycompany).order_by(
+    # hacemos una lista de proyectos por semana para saber que
+    # proyectos están repetidos de la semana pasada.
+    # Los proyectos repetidos seran los primeros que planificaremos-
+
+    repitpro = []
+#=========================================================================
+
+    for w in range(weekpro , weekpro + 2):
+        nameprolist = Request.objects.filter(
+            company=mycompany, week_number=w).values_list('project')
+        repitpro += [(nameprolist)]
+
+    # miro que proyecto se repite de esta semana y la pasada
+    interpro = set(repitpro[0]).intersection(repitpro[1])
+
+    # agrupo todas las planificaciones hechas de esos proyectos
+    profirst = []
+    for pr in interpro:
+        reqtoplann = Request.objects.filter(project=pr).order_by(
+            'week_number', 'resource').values_list('pk')
+        profirst += [(reqtoplann)]
+
+    # ahora la tupla lo convierto en una lista, y tengo el listado de todas
+    # las planis que tengo que ir metiendo porque viene de la semana que viene
+    profirst_list = [list(i) for i in profirst]
+    print (profirst_list)
+
+    # programo cada proyecto de la lista creada
+
+    for prog in profirst_list[0]:
+        print (prog[0])
+        # identifico el proyecto
+        prog_rec = Request.objects.get(pk=prog[0])
+        print(prog_rec)
+
+        # miro los dias que el proyecto tiene establcidos de trabajo
+        listdays = range(prog_rec.day_week_in, prog_rec.day_week_out + 1)
+        print (listdays)
+
+        # miro las horas que trabaja el usuario en esos días y si tiene
+        # vacaciones
+# =========================================================================
+        # hay que mirar como hacer todo esto en una clase
+        # def hours_user_work(dayspro, userpro, comp, weekpro,)
+# =========================================================================
+        # saco las hora disponibles al dia del usuario diccionario (dia:hora)
+        listhoursuser_t = []
+        for listday in listdays:
+            hoursuser = ScheduleCompanyUser.objects.get(
+                user=prog_rec.resource, schedule_company=listday)
+            listhoursuser_t += [(listday, hoursuser.hour)]
+        print (listhoursuser_t)
+
+        # saco las horas que tiene de vacaciones el usuaario en un dicionario
+        # (dia:hora)
+        listhoursholliday_t = []
+        for listday in listdays:
+            try:
+                hoursuser_holliday = UserHolidays.objects.get(
+                    user=prog_rec.resource, schedule_company=listday, week=weekpro + 1)
+                listhoursholliday_t += [(listday, hoursuser_holliday.hour)]
+            except UserHolidays.DoesNotExist:
+                listhoursholliday_t += [(listday, 0)]
+        print (listhoursholliday_t)
+
+        # saco las horas que tiene en esa semana ya planificadas en un
+        # dicionario (dia:hora)
+
+        listnowplann_t = []
+        for listday in listdays:
+            try:
+                houruser_plann = Planning.objects.get(
+                    resource=prog_rec.resource, dayweek=listday, week=weekpro + 1)
+                listnowplann_t += [(listday, houruser_plann)]
+            except Planning.DoesNotExist:
+                listnowplann_t += [(listday, 0)]
+        print ('horas disponibles: '), (listnowplann_t)
+
+        # =========================================================================
+        # >>>>>>>>>>>>> da como resultado los elmetnos que no son iguales
+        # hworkandhholliday = len(
+        #    set(listhoursuser_t).intersection(listhoursholliday_t))
+        # =========================================================================
+
+        # estas son las hoars que dispone el recurso para ser planificado en
+        # este proyecto
+        real_hours_resource = list(set(listhoursuser_t) -
+                                   set(listhoursholliday_t) -
+                                   set(listnowplann_t))
+        print (real_hours_resource)
+
+        # hay que ver si las horas disponibles son menos que las horas del
+        # proyecto
+        listhours = ()
+        for d in real_hours_resource:
+            listhours += d[1:]
+
+        total_listhours = sum(listhours)
+
+        print ('horas disponibles del usuario', total_listhours)
+        print ('horas del proyecto', prog_rec.time)
+
+        real_hours_resource_ord = sorted(real_hours_resource)
+
+        print (real_hours_resource_ord)
+
+        # si las horas del proyecto son igual o menor que
+        # las disponibles lo planifico
+        if prog_rec.time <= total_listhours:
+            print('lo planifico')
+
+            instances = []
+            hoursneed = prog_rec.time
+            # voy restando las horas a las horas del proyecto
+            for plan in real_hours_resource_ord:
+                print(hoursneed)
+                if plan[1] <= hoursneed:
+                    hoursneed -= plan[1]
+                    instances += [Planning(
+                        project=prog_rec.project,
+                        resource=prog_rec.resource,
+                        week=prog_rec.week_number,
+                        dayweek=plan[0],
+                        hours=plan[1],
+                        company=prog_rec.company,)]
+                # si las horas restadas son menos que las
+                # horas que hay en el dia pongo las horas que restan
+                elif hoursneed != 0:
+                    instances += [Planning(
+                        project=prog_rec.project,
+                        resource=prog_rec.resource,
+                        week=prog_rec.week_number,
+                        dayweek=plan[0],
+                        hours=hoursneed,
+                        company=prog_rec.company,)]
+
+                else:
+                    prog_rec.planned = True
+                    prog_rec.save()
+                    pass
+
+            Planning.objects.bulk_create(instances)
+
+        else:
+            print('no lo planifico')
+            pass
+
+
+
+# =========================================================================
+    # se ve en pantalla
+    # lista todos las peticiones de recurso que hay
+
+    myuser = request.user.id
+    nameprolist = Request.objects.filter(user=myuser).order_by(
         'week_number', 'resource', 'project')
-    return render(request, 'requestlist.html', {'requestlist': requestlist})
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return render(request, 'plannerlist.html', {'nameprolist': nameprolist})

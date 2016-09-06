@@ -39,4 +39,6 @@ urlpatterns = [
     url(r'^holiday/new/', views.userholidaysnew, name='holiday'),
     url(r'^holiday/list/', views.userholidays_list, name='holidaylist'),
 
+    # PLANNER
+    url(r'^planning/list/', views.planning, name='nameprolist'),
 ]

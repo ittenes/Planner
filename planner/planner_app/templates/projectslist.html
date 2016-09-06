@@ -15,16 +15,16 @@
                         <td>
                         COMPANY
                         </td>
-                {% for project in projectslist %}
+                {% for namepro in nameprolist %}
                     <tr>
                         <td>
-                            {{ project.name }}
+                            {{ namepro.name }}
                         </td>
                         <td>
-                            {{ project.client }}
+                            {{ namepro.client }}
                         </td>
                         <td>
-                            {{ project.company }}
+                            {{ namepro.company }}
                         </td>
                     </tr>
                 {% endfor %}

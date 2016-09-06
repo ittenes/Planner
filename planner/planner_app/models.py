@@ -58,15 +58,16 @@ class Company(models.Model):
 
 
 class Planning(models.Model):
-    project = models.IntegerField()
-    user = models.IntegerField()
-    date = models.DateField()
+    project = models.ForeignKey('Project', models.DO_NOTHING,)
+    resource = models.ForeignKey('UserCompany', models.DO_NOTHING, blank=False, null=True)
+    week = models.IntegerField(blank=True, null=True)
+    dayweek = models.IntegerField()
     hours = models.IntegerField()
-
+    company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
     class Meta:
         managed = True
         db_table = 'planning'
-        unique_together = (('project', 'user', 'date'),)
+
 
 
 class Project(models.Model):

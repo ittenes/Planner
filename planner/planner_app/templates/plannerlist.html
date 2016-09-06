@@ -1,0 +1,64 @@
+
+{% extends 'base.html' %}
+
+    {% block content %}
+        <div>
+        <h1>PROYECTOS LISTADO </h1>
+            <table border="1">
+                    <tr>
+                        <td>
+                        COMPANY
+                        </td>
+                        <td>
+                        USER
+                        </td>
+                        <td>
+                        PROJECT
+                        </td>
+                         <td>
+                        RESOURCE
+                        </td>
+                        <td>
+                        TOTAL HOURS
+                        </td>
+                        <td>
+                        WEEK NUMBER
+                        </td>
+                        <td>
+                        DAY WEEK IN
+                        </td>
+                        <td>
+                        DAY WEEK OUT
+                        </td>
+                {% for requests in nameprolist %}
+                    <tr>
+                        <td>
+                            {{ requests.company }}
+                        </td>
+                        <td>
+                            {{ requests.user }}
+                        </td>
+                        <td>
+                            {{ requests.project }}
+                        </td>
+                        <td>
+                            {{ requests.resource }}
+                        </td>
+                        <td>
+                            {{ requests.time }}
+                        </td>
+                        <td>
+                            {{ requests.week_number }}
+                        </td>
+                        <td>
+                            {{ requests.day_week_in }}
+                        </td>
+                        <td>
+                            {{ requests.day_week_out }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    {% endblock content %}
