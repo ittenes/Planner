@@ -349,13 +349,21 @@ def planning(request):
             nameprolist = Request.objects.filter(
                 company=mycompany, week_number=w).values_list('project')
             repitpro += [(nameprolist)]
-
+        print ('primera muestra', repitpro)
         # miro que proyecto se repite de esta semana y la pasada
         if (week_last - week_first) == 1:
-            interpro = set(repitpro[0])
-        else:
-            interpro = set(repitpro[0]).intersection(repitpro[(week_last - week_first)-1])
-        print ('interpro', interpro)
+            interpro = repitpro[0]
+            print ('interpro 0', interpro, )
+        elif (week_last - week_first) == 2:
+            interpro = set(repitpro[0]).intersection(repitpro[1])
+            print ('interpro 1', interpro)
+        elif (week_last - week_first) == 3:
+            interpro = set(repitpro[0]).intersection(repitpro[2])
+            print ('interpro 2', interpro)
+        elif (week_last - week_first) == 4:
+            interpro = set(repitpro[0]).intersection(repitpro[3])
+            print ('interpro 3', interpro)
+
         return interpro
 
     # llamo a la función para crera nueva planis basadas en la semana anterior
@@ -372,25 +380,28 @@ def planning(request):
     def crate_plannig(listpro):
     # agrupo todas las planificaciones hechas de esos proyectos
         print ('variables de proyectos', listpro)
-        allprojects = set(listpro)
-        print ('listado de proyectos')
         profirst = []
         for pr in listpro:
             reqtoplann = Request.objects.filter(project=pr).order_by(
                 'week_number', 'resource').values_list('pk')
             profirst += [(reqtoplann)]
-        print (profirst)
+        print ('bruto de lista', profirst)
         # ahora la tupla lo convierto en una lista, y tengo el listado de todas
         # las planis que tengo que ir metiendo porque viene de la semana que viene
-        profirst_list = [list(i) for i in profirst]
+        # profirst_list = [list(i) for i in profirst]
+        profirst_list = []
+        # itero la lista para poder sacar los proyectos
+        for i in profirst:
+            for e in i:
+                profirst_list += e
         print ('listado de proyectos', profirst_list)
 
         # programo cada proyecto de la lista creada
 
-        for prog in profirst_list[0]:
-            print ('proyecto id del for', prog[0])
+        for prog in profirst_list:
+            print ('proyecto id del for', prog)
             # identifico el proyecto
-            prog_rec = Request.objects.get(pk=prog[0])
+            prog_rec = Request.objects.get(pk=prog)
             print('proyecto_id', prog_rec)
 
             # miro los dias que el proyecto tiene establcidos de trabajo
@@ -504,10 +515,19 @@ def planning(request):
                 print('no lo planifico')
 
     # Creo las planificaciones primero las repetidas despues en orden decreciente de alcance
+    print('semana anterior ===============')
     crate_plannig(listrepit)
+    print('semana anterior ===============')
+    print(' 3 semanas ================== ')
     crate_plannig(listtothree)
+    print(' 3 semanas ================== ')
+    print(' 2 semanas ================== ')
     crate_plannig(listtotwo)
+    print(' 2 semanas ================== ')
+    print(' 1 semanas ================== ')
     crate_plannig(listtoone)
+    print(' 1 semanas ================== ')
+
 # =========================================================================
     # se ve en pantalla
     # lista todos las peticiones de recurso que hay
