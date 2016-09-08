@@ -359,12 +359,15 @@ def planning(request):
         return interpro
 
     # llamo a la función para crera nueva planis basadas en la semana anterior
-    # listrepit = project_repit(weekpro, weekpro + 2)
-    # listtothree = project_repit((weekpro + 1), (weekpro + 4))
-    listtotwo = project_repit(weekpro + 1, weekpro + 3)
-    # listtoone = project_repit(weekpro + 1, weekpro + 2)
+    listrepit = project_repit(weekpro, weekpro + 2)
 
-    # creo la funconalidad para crear las planis
+    # planificio los proyectos de mayor duración primero
+    listtothree = project_repit((weekpro + 1), (weekpro + 4))
+    listtotwo = project_repit(weekpro + 1, weekpro + 3)
+    listtoone = project_repit(weekpro + 1, weekpro + 2)
+
+    # funcucion para crear las planis, le paso los valores de listpro
+    # que me devuelve loa list...
 
     def crate_plannig(listpro):
     # agrupo todas las planificaciones hechas de esos proyectos
@@ -496,13 +499,15 @@ def planning(request):
                 Planning.objects.bulk_create(instances)
                 print('planifico', prog_rec.week_number )
             else:
+                # Aquí tenemos que ver que hacemos con los proyectos que
+                # el recurso no tiene horas disponibles
                 print('no lo planifico')
 
     # Creo las planificaciones primero las repetidas despues en orden decreciente de alcance
-    # crate_plannig(listrepit)
-    # crate_plannig(listtothree)
+    crate_plannig(listrepit)
+    crate_plannig(listtothree)
     crate_plannig(listtotwo)
-    # crate_plannig(listtoone)
+    crate_plannig(listtoone)
 # =========================================================================
     # se ve en pantalla
     # lista todos las peticiones de recurso que hay
