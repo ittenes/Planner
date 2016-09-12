@@ -341,7 +341,7 @@ def planning(request):
     # hacemos una lista de proyectos por semana para saber que
     # proyectos están repetidos de la semana pasada.
     # Los proyectos repetidos seran los primeros que planificaremos-
-
+    list_no_plannig = []
     #=========================================================================
     def project_repit(week_first, week_last,):
         repitpro = []
@@ -396,6 +396,8 @@ def planning(request):
                 profirst_list += e
         print ('listado de proyectos', profirst_list)
 
+        # los proyectos que no se pueden planificar los saco a una lista
+        list_no_plannig = []
         # programo cada proyecto de la lista creada
 
         for prog in profirst_list:
@@ -404,129 +406,139 @@ def planning(request):
             prog_rec = Request.objects.get(pk=prog)
             print('proyecto_id', prog_rec)
 
-            # miro los dias que el proyecto tiene establcidos de trabajo
-            listdays = range(prog_rec.day_week_in, prog_rec.day_week_out + 1)
-            print ('dias establecidos de trabajo', listdays)
+            # miro si el proyecto está ya planificado para sacarlo del loop
+            if prog_rec.planned == False :
+                # miro los dias que el proyecto tiene establcidos de trabajo
+                listdays = range(prog_rec.day_week_in, prog_rec.day_week_out + 1)
+                print ('dias establecidos de trabajo', listdays)
 
-            # miro las horas que trabaja el usuario en esos días y si tiene
-            # vacaciones
+                # miro las horas que trabaja el usuario en esos días y si tiene
+                # vacaciones
+                # saco las hora disponibles al dia del usuario diccionario (dia:hora)
+                listhoursuser_t = []
+                for listday in listdays:
+                    hoursuser = ScheduleCompanyUser.objects.get(
+                        user=prog_rec.resource, schedule_company=listday)
+                    listhoursuser_t += [(listday, hoursuser.hour)]
+                print ('horario de usaurio', listhoursuser_t)
 
-            # saco las hora disponibles al dia del usuario diccionario (dia:hora)
-            listhoursuser_t = []
-            for listday in listdays:
-                hoursuser = ScheduleCompanyUser.objects.get(
-                    user=prog_rec.resource, schedule_company=listday)
-                listhoursuser_t += [(listday, hoursuser.hour)]
-            print ('horario de usaurio', listhoursuser_t)
+                # saco las horas que tiene de vacaciones el usuaario en un dicionario
+                # (dia:hora)
+                listhoursholliday_t = []
+                for listday in listdays:
+                    try:
+                        hoursuser_holliday = UserHolidays.objects.get(
+                            user=prog_rec.resource, schedule_company=listday, week=weekpro + 1)
+                        listhoursholliday_t += [(listday, hoursuser_holliday.hour)]
+                    except UserHolidays.DoesNotExist:
+                        listhoursholliday_t += [(listday, 0)]
+                print ('horas vacaciones', listhoursholliday_t)
 
-            # saco las horas que tiene de vacaciones el usuaario en un dicionario
-            # (dia:hora)
-            listhoursholliday_t = []
-            for listday in listdays:
-                try:
-                    hoursuser_holliday = UserHolidays.objects.get(
-                        user=prog_rec.resource, schedule_company=listday, week=weekpro + 1)
-                    listhoursholliday_t += [(listday, hoursuser_holliday.hour)]
-                except UserHolidays.DoesNotExist:
-                    listhoursholliday_t += [(listday, 0)]
-            print ('horas vacaciones', listhoursholliday_t)
+                # saco las horas que tiene en esa semana ya planificadas en un
+                # dicionario (dia:hora)
+                listnowplann_t = []
+                for listday in listdays:
+                    try:
+                        houruser_plann = Planning.objects.get(
+                            resource=prog_rec.resource, dayweek=listday, week=weekpro + 1)
+                        listnowplann_t += [(listday, houruser_plann)]
+                    except Planning.DoesNotExist:
+                        listnowplann_t += [(listday, 0)]
+                print ('horas disponibles: '), (listnowplann_t)
 
-            # saco las horas que tiene en esa semana ya planificadas en un
-            # dicionario (dia:hora)
+                # =========================================================================
+                # >>>>>>>>>>>>> da como resultado los elmetnos que no son iguales
+                # hworkandhholliday = len(
+                #    set(listhoursuser_t).intersection(listhoursholliday_t))
+                # =========================================================================
 
-            listnowplann_t = []
-            for listday in listdays:
-                try:
-                    houruser_plann = Planning.objects.get(
-                        resource=prog_rec.resource, dayweek=listday, week=weekpro + 1)
-                    listnowplann_t += [(listday, houruser_plann)]
-                except Planning.DoesNotExist:
-                    listnowplann_t += [(listday, 0)]
-            print ('horas disponibles: '), (listnowplann_t)
+                # estas son las hoars que dispone el recurso para ser planificado en
+                # este proyecto
+                real_hours_resource = list(set(listhoursuser_t) -
+                                           set(listhoursholliday_t) -
+                                           set(listnowplann_t))
+                print ('horas reales de usuario', real_hours_resource)
 
-            # =========================================================================
-            # >>>>>>>>>>>>> da como resultado los elmetnos que no son iguales
-            # hworkandhholliday = len(
-            #    set(listhoursuser_t).intersection(listhoursholliday_t))
-            # =========================================================================
+                # hay que ver si las horas disponibles son menos que las horas del
+                # proyecto
+                listhours = ()
+                for d in real_hours_resource:
+                    listhours += d[1:]
 
-            # estas son las hoars que dispone el recurso para ser planificado en
-            # este proyecto
-            real_hours_resource = list(set(listhoursuser_t) -
-                                       set(listhoursholliday_t) -
-                                       set(listnowplann_t))
-            print ('horas reales de usuario', real_hours_resource)
+                total_listhours = sum(listhours)
 
-            # hay que ver si las horas disponibles son menos que las horas del
-            # proyecto
-            listhours = ()
-            for d in real_hours_resource:
-                listhours += d[1:]
+                print ('horas disponibles del usuario', total_listhours)
+                print ('horas del proyecto', prog_rec.time)
 
-            total_listhours = sum(listhours)
+                real_hours_resource_ord = sorted(real_hours_resource)
+                print (real_hours_resource_ord)
 
-            print ('horas disponibles del usuario', total_listhours)
-            print ('horas del proyecto', prog_rec.time)
+                # si las horas del proyecto son igual o menor que
+                # las disponibles lo planifico
+                if prog_rec.time <= total_listhours:
 
-            real_hours_resource_ord = sorted(real_hours_resource)
+                    print('lo planifico')
+                    instances = []
+                    hoursneed = prog_rec.time
 
-            print (real_hours_resource_ord)
+                    # voy restando las horas a las horas del proyecto
+                    for plan in real_hours_resource_ord:
+                        print(hoursneed)
+                        if plan[1] <= hoursneed:
+                            hoursneed -= plan[1]
+                            instances += [Planning(
+                                project=prog_rec.project,
+                                resource=prog_rec.resource,
+                                week=prog_rec.week_number,
+                                dayweek=plan[0],
+                                hours=plan[1],
+                                company=prog_rec.company,)]
 
-            # si las horas del proyecto son igual o menor que
-            # las disponibles lo planifico
-            if prog_rec.time <= total_listhours and prog_rec.planned == False :
-                print('lo planifico')
+                        # si las horas restadas son menos que las
+                        # horas que hay en el dia pongo las horas que restan
+                        elif hoursneed != 0:
+                            instances += [Planning(
+                                project=prog_rec.project,
+                                resource=prog_rec.resource,
+                                week=prog_rec.week_number,
+                                dayweek=plan[0],
+                                hours=hoursneed,
+                                company=prog_rec.company,)]
+                            hoursneed -= hoursneed
+                        else:
+                            pass
 
-                instances = []
-                hoursneed = prog_rec.time
-                # voy restando las horas a las horas del proyecto
-                for plan in real_hours_resource_ord:
-                    print(hoursneed)
-                    if plan[1] <= hoursneed:
-                        hoursneed -= plan[1]
-                        instances += [Planning(
-                            project=prog_rec.project,
-                            resource=prog_rec.resource,
-                            week=prog_rec.week_number,
-                            dayweek=plan[0],
-                            hours=plan[1],
-                            company=prog_rec.company,)]
-                    # si las horas restadas son menos que las
-                    # horas que hay en el dia pongo las horas que restan
-                    elif hoursneed != 0:
-                        instances += [Planning(
-                            project=prog_rec.project,
-                            resource=prog_rec.resource,
-                            week=prog_rec.week_number,
-                            dayweek=plan[0],
-                            hours=hoursneed,
-                            company=prog_rec.company,)]
-                        hoursneed -= hoursneed
 
-                    else:
-                        pass
-                prog_rec.planned = True
-                prog_rec.save()
-                Planning.objects.bulk_create(instances)
-                print('planifico', prog_rec.week_number )
+
+                    prog_rec.planned = True
+                    prog_rec.save()
+                    Planning.objects.bulk_create(instances)
+                    print('planifico', prog_rec.week_number )
+                else:
+                    # Aquí tenemos que ver que hacemos con los proyectos que
+                    # el recurso no tiene horas disponibles
+                    print('no lo planifico')
+                    no_plannig = prog_rec.id
+                    list_no_plannig.append(no_plannig)
+
+
             else:
-                # Aquí tenemos que ver que hacemos con los proyectos que
-                # el recurso no tiene horas disponibles
-                print('no lo planifico')
-
+                pass
+        print ('list_no_plannig',list_no_plannig)
+        return list_no_plannig
     # Creo las planificaciones primero las repetidas despues en orden decreciente de alcance
-    print('semana anterior ===============')
+    print('start semana anterior ===============')
     crate_plannig(listrepit)
-    print('semana anterior ===============')
-    print(' 3 semanas ================== ')
+    print('end semana anterior ===============')
+    print(' 3 start semanas ================== ')
     crate_plannig(listtothree)
-    print(' 3 semanas ================== ')
-    print(' 2 semanas ================== ')
+    print(' 3 end semanas ================== ')
+    print(' 2 start semanas ================== ')
     crate_plannig(listtotwo)
-    print(' 2 semanas ================== ')
-    print(' 1 semanas ================== ')
+    print(' 2 end semanas ================== ')
+    print(' 1 start semanas ================== ')
     crate_plannig(listtoone)
-    print(' 1 semanas ================== ')
+    print(' 1 end semanas ================== ')
 
 # =========================================================================
     # se ve en pantalla
