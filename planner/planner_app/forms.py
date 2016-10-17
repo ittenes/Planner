@@ -79,9 +79,9 @@ class WeekDayForm(forms.ModelForm):
         model = WeekDay
         fields = ('daywork',)
 
-    # se reliza la funcion para coar el formauliro en su creación se pasa como
+    # se reliza la funcion para coar el formauliro en su creacion se pasa como
     # parametro user, que viene de view.
-    # Filtramos usuario, filtramos compañia, sacando solo los valores en una
+    # Filtramos usuario, filtramos compania, sacando solo los valores en una
     # lista con value_list('valor',flat=true)
 
     def __init__(self, user, *args, **kwargs):

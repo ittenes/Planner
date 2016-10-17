@@ -295,7 +295,7 @@ def userholidaysnew(request):
     return render(request, 'holiday.html', {'userholidaysform': userholidaysform})
 
 
-# SCHEDULE USER  - ScheduleCompanyUser NO ESTÁ HECHA LA PAG. HAY QUE HACER
+# SCHEDULE USER  - ScheduleCompanyUser NO ESTA HECHA LA PAG. HAY QUE HACER
 # LA PG DE LISTADO Y EDICION DE LAS HORAS
 
 # schedule user list
@@ -326,7 +326,7 @@ def scheduleusernew(request):
     return render(request, 'scheduleuserform.html', {'scheduleuserform': scheduleuserform})
 
 
-# CREACIÓN DE PLANIFICACIÓN
+# CREACION DE PLANIFICACION
 
 # Request list
 
@@ -339,7 +339,7 @@ def planning(request):
     weekpro = today.isocalendar()[1]
 
     # hacemos una lista de proyectos por semana para saber que
-    # proyectos están repetidos de la semana pasada.
+    # proyectos estan repetidos de la semana pasada.
     # Los proyectos repetidos seran los primeros que planificaremos-
     list_no_plannig = []
     #=========================================================================
@@ -366,10 +366,10 @@ def planning(request):
 
         return interpro
 
-    # llamo a la función para crera nueva planis basadas en la semana anterior
+    # llamo a la funcion para crera nueva planis basadas en la semana anterior
     listrepit = project_repit(weekpro, weekpro + 2)
 
-    # planificio los proyectos de mayor duración primero
+    # planificio los proyectos de mayor duracion primero
     listtothree = project_repit((weekpro + 1), (weekpro + 4))
     listtotwo = project_repit(weekpro + 1, weekpro + 3)
     listtoone = project_repit(weekpro + 1, weekpro + 2)
@@ -398,21 +398,21 @@ def planning(request):
 
         # los proyectos que no se pueden planificar los saco a una lista
         list_no_plannig = []
+        
         # programo cada proyecto de la lista creada
-
         for prog in profirst_list:
             print ('proyecto id del for', prog)
             # identifico el proyecto
             prog_rec = Request.objects.get(pk=prog)
             print('proyecto_id', prog_rec)
 
-            # miro si el proyecto está ya planificado para sacarlo del loop
+            # miro si el proyecto esta ya planificado para sacarlo del loop
             if prog_rec.planned == False :
                 # miro los dias que el proyecto tiene establcidos de trabajo
                 listdays = range(prog_rec.day_week_in, prog_rec.day_week_out + 1)
                 print ('dias establecidos de trabajo', listdays)
 
-                # miro las horas que trabaja el usuario en esos días y si tiene
+                # miro las horas que trabaja el usuario en esos dias y si tiene
                 # vacaciones
                 # saco las hora disponibles al dia del usuario diccionario (dia:hora)
                 listhoursuser_t = []
@@ -515,12 +515,12 @@ def planning(request):
                     Planning.objects.bulk_create(instances)
                     print('planifico', prog_rec.week_number )
                 else:
-                    # Aquí tenemos que ver que hacemos con los proyectos que
+                    # Aqui tenemos que ver que hacemos con los proyectos que
                     # el recurso no tiene horas disponibles
-                    print('no lo planifico')
+                    
                     no_plannig = prog_rec.id
                     list_no_plannig.append(no_plannig)
-
+                    print('no lo planifico', no_plannig)
 
             else:
                 pass
