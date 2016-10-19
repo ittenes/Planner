@@ -63,7 +63,7 @@ class ProjectForm(forms.ModelForm):
         self.user = user
         # request is a required parameter for this form.
         super(ProjectForm, self).__init__(*args, **kwargs)
-        iduser = AuthUser.objects.filter(email=self.user).values('pk')
+        iduser = AuthUser.objects.filter(email=self.user).values('id')
         print (iduser)
         mycompany = Company.objects.filter(
             owner_company=iduser).values_list('id', flat=True)

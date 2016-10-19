@@ -107,7 +107,7 @@ def companynew(request):
             usercompany = form_usercompanyactive.save(commit=False)
             usercompany.company = Company.objects.get(
                 owner_company=request.user.id)
-            usercompany.type_user = UserType.objects.get(id=7)
+            usercompany.type_user = UserType.objects.get(id=1)
             usercompany.email = AuthUser.objects.get(email=request.user.email)
             usercompany.user = AuthUser.objects.get(id=request.user.id)
             usercompany.save()
@@ -153,7 +153,9 @@ def clientsnew(request):
 
 def projects_list(request):
     mycompany = Company.objects.get(owner_company=request.user.id)
+    print (mycompany)
     projectslist = Project.objects.filter(company=mycompany).order_by('client')
+    print (projectslist)
     return render(request, 'projectslist.html', {'projectslist': projectslist})
 
 # create new project
@@ -259,7 +261,7 @@ def requestnew(request):
             requestnew.company = Company.objects.get(
                 owner_company=request.user.id)
             requestnew.save()
-            return redirect('views.request_list', )
+            return redirect('views.request_list',)
 
     else:
         requestform = RequestForm(request.user)
@@ -439,8 +441,10 @@ def planning(request):
                 listnowplann_t = []
                 for listday in listdays:
                     try:
+                        print ('llego hasta aqui')
                         houruser_plann = Planning.objects.get(
                             resource=prog_rec.resource, dayweek=listday, week=weekpro + 1)
+                        print ('mirar', houruser_plann)
                         listnowplann_t += [(listday, houruser_plann)]
                     except Planning.DoesNotExist:
                         listnowplann_t += [(listday, 0)]
