@@ -376,6 +376,7 @@ def planning(request):
 
     # funcucion para crear las planis, le paso los valores de listpro
     # que me devuelve loa list...
+    list_no_plannig = []
 
     def crate_plannig(listpro):
     # agrupo todas las planificaciones hechas de esos proyectos
@@ -397,7 +398,7 @@ def planning(request):
         print ('listado de proyectos', profirst_list)
 
         # los proyectos que no se pueden planificar los saco a una lista
-        list_no_plannig = []
+        # list_no_plannig = []
         # programo cada proyecto de la lista creada
 
         for prog in profirst_list:
@@ -508,23 +509,28 @@ def planning(request):
                         else:
                             pass
 
-
-
                     prog_rec.planned = True
                     prog_rec.save()
                     Planning.objects.bulk_create(instances)
                     print('planifico', prog_rec.week_number )
-                else:
-                    # Aquí tenemos que ver que hacemos con los proyectos que
-                    # el recurso no tiene horas disponibles
-                    print('no lo planifico')
+
+
+                elif prog_rec.time >= total_listhours or real_hours_resource == False:
+                    # los proyectos que no tiene horas suficientes pasan a
+                    # una lista de no planificados
                     no_plannig = prog_rec.id
                     list_no_plannig.append(no_plannig)
 
 
+                else:
+
+                    print('no lo planifico')
+
+
+
             else:
                 pass
-        print ('list_no_plannig',list_no_plannig)
+
         return list_no_plannig
     # Creo las planificaciones primero las repetidas despues en orden decreciente de alcance
     print('start semana anterior ===============')
@@ -540,12 +546,13 @@ def planning(request):
     crate_plannig(listtoone)
     print(' 1 end semanas ================== ')
 
+    print ('list_no_plannig',list_no_plannig)
 # =========================================================================
     # se ve en pantalla
     # lista todos las peticiones de recurso que hay
 
     myuser = request.user.id
-    nameprolist = Request.objects.filter(user=myuser).order_by(
+    nameprolist = Request.objects.filter(id__in=list_no_plannig).order_by(
         'week_number', 'resource', 'project')
 
     return render(request, 'plannerlist.html', {'nameprolist': nameprolist})
