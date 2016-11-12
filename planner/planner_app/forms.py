@@ -63,7 +63,7 @@ class ProjectForm(forms.ModelForm):
         self.user = user
         # request is a required parameter for this form.
         super(ProjectForm, self).__init__(*args, **kwargs)
-        iduser = AuthUser.objects.filter(email=self.user).values('pk')
+        iduser = AuthUser.objects.filter(email=self.user).values('id')
         print (iduser)
         mycompany = Company.objects.filter(
             owner_company=iduser).values_list('id', flat=True)
@@ -79,9 +79,9 @@ class WeekDayForm(forms.ModelForm):
         model = WeekDay
         fields = ('daywork',)
 
-    # se reliza la funcion para coar el formauliro en su creación se pasa como
+    # se reliza la funcion para coar el formauliro en su creacion se pasa como
     # parametro user, que viene de view.
-    # Filtramos usuario, filtramos compañia, sacando solo los valores en una
+    # Filtramos usuario, filtramos compania, sacando solo los valores en una
     # lista con value_list('valor',flat=true)
 
     def __init__(self, user, *args, **kwargs):

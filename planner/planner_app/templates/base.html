@@ -4,6 +4,7 @@
     <title>{% block head_title %}{% endblock %}</title>
     {% block extra_head %}
     {% endblock %}
+
   </head>
   <body>
     {% block body %}
@@ -21,6 +22,8 @@
 
     <div>
       <strong>Menu:</strong>
+      Ver si carga esto no hay manera
+
       <ul>
     {% if user.is_authenticated %}
     <li><a href="{% url 'account_email' %}">Change E-mail</a></li>
