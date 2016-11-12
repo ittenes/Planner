@@ -107,7 +107,7 @@ def companynew(request):
             usercompany = form_usercompanyactive.save(commit=False)
             usercompany.company = Company.objects.get(
                 owner_company=request.user.id)
-            usercompany.type_user = UserType.objects.get(id=7)
+            usercompany.type_user = UserType.objects.get(id=1)
             usercompany.email = AuthUser.objects.get(email=request.user.email)
             usercompany.user = AuthUser.objects.get(id=request.user.id)
             usercompany.save()
