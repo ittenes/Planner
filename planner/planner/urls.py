@@ -23,6 +23,7 @@ urlpatterns = [
     # url(r'^api_app/', include('api_app.urls')),
     # url(r'^planner_app/', include('planner_app.urls')),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'', include('planner_app.urls'))
+    url(r'', include('planner_app.urls')),
+    url(r'', include('api_app.urls')),
 
 ]
