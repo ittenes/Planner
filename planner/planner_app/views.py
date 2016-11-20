@@ -400,16 +400,8 @@ def planning(request):
         print ('listado de proyectos', profirst_list)
 
         # los proyectos que no se pueden planificar los saco a una lista
-<<<<<<< HEAD
         # list_no_plannig = []
-=======
-<<<<<<< HEAD
-        # list_no_plannig = []
-=======
-        list_no_plannig = []
-        
->>>>>>> 9eacfe03d0c1bab0dae0f7b01156125728aa857c
->>>>>>> c516932dcc6d89d57c45c038bc1744b170239c3c
+
         # programo cada proyecto de la lista creada
 
         for prog in profirst_list:
@@ -526,39 +518,19 @@ def planning(request):
                     prog_rec.save()
                     Planning.objects.bulk_create(instances)
                     print('planifico', prog_rec.week_number )
-<<<<<<< HEAD
 
 
                 elif prog_rec.time > total_listhours or real_hours_resource == False:
                     # los proyectos que no tiene horas suficientes pasan a
                     # una lista de no planificados
-=======
-<<<<<<< HEAD
-
-
-                elif prog_rec.time >= total_listhours or real_hours_resource == False:
-                    # los proyectos que no tiene horas suficientes pasan a
-                    # una lista de no planificados
-=======
-                else:
-                    # Aqui tenemos que ver que hacemos con los proyectos que
-                    # el recurso no tiene horas disponibles
-                    
->>>>>>> 9eacfe03d0c1bab0dae0f7b01156125728aa857c
->>>>>>> c516932dcc6d89d57c45c038bc1744b170239c3c
                     no_plannig = prog_rec.id
                     list_no_plannig.append(no_plannig)
                     print('no lo planifico', no_plannig)
 
                 else:
-<<<<<<< HEAD
                     pass
-=======
 
                     print('no lo planifico')
-
-
->>>>>>> c516932dcc6d89d57c45c038bc1744b170239c3c
 
             else:
                 pass

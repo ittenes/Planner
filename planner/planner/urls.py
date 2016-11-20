@@ -24,10 +24,7 @@ urlpatterns = [
     # url(r'^planner_app/', include('planner_app.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'', include('planner_app.urls')),
-<<<<<<< HEAD
     #url(r'', include('api_app.urls')),
-=======
-    url(r'', include('api_app.urls')),
->>>>>>> c516932dcc6d89d57c45c038bc1744b170239c3c
+
 
 ]
