@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # api_rest
     'rest_framework',
+    'drf_generators',
     # mnis app
     'api_app',
     'planner_app',
