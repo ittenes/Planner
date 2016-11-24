@@ -400,7 +400,6 @@ def planning(request):
         print ('listado de proyectos', profirst_list)
 
         # los proyectos que no se pueden planificar los saco a una lista
-        # list_no_plannig = []
 
         # programo cada proyecto de la lista creada
 
@@ -410,13 +409,13 @@ def planning(request):
             prog_rec = Request.objects.get(pk=prog)
             print('proyecto_id', prog_rec)
 
-            # miro si el proyecto está ya planificado para sacarlo del loop
+            # miro si el proyecto esta ya planificado para sacarlo del loop
             if prog_rec.planned == False :
                 # miro los dias que el proyecto tiene establcidos de trabajo
                 listdays = range(prog_rec.day_week_in, prog_rec.day_week_out + 1)
                 print ('dias establecidos de trabajo', listdays)
 
-                # miro las horas que trabaja el usuario en esos días y si tiene
+                # miro las horas que trabaja el usuario en esos dias y si tiene
                 # vacaciones
                 # saco las hora disponibles al dia del usuario diccionario (dia:hora)
                 listhoursuser_t = []
