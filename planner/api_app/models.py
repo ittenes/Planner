@@ -36,7 +36,7 @@ class AuthUser(models.Model):
     def __str__(self): return self.email
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'auth_user'
         verbose_name_plural = 'AuthUsers'
 
@@ -128,7 +128,7 @@ class Role(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'role'
         verbose_name_plural = 'Roles'
 
