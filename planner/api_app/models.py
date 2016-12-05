@@ -36,8 +36,9 @@ class AuthUser(models.Model):
     def __str__(self): return self.email
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'auth_user'
+        verbose_name_plural = 'AuthUsers'
 
 
 class Client(models.Model):
@@ -50,7 +51,7 @@ class Client(models.Model):
     class Meta:
         managed = True
         db_table = 'client'
-
+        verbose_name_plural = 'Clients'
 
 class Company(models.Model):
     name = models.CharField(max_length=75)
@@ -64,6 +65,7 @@ class Company(models.Model):
         managed = True
         db_table = 'company'
         unique_together = (('owner_company', 'name'), ('owner_company', 'active'))
+        verbose_name_plural = 'Companys'
 
 
 class Planning(models.Model):
@@ -76,6 +78,7 @@ class Planning(models.Model):
     class Meta:
         managed = True
         db_table = 'planning'
+        verbose_name_plural = 'Plannings'
 
 
 
@@ -91,7 +94,7 @@ class Project(models.Model):
         managed = True
         db_table = 'project'
         unique_together = (('name', 'client'),('name', 'company'),)
-
+        verbose_name_plural = 'Projects'
 
 class Provider(models.Model):
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
@@ -102,6 +105,7 @@ class Provider(models.Model):
         managed = True
         db_table = 'provider'
         unique_together = (('company', 'cif'),)
+        verbose_name_plural = 'Providers'
 
 
 class Request(models.Model):
@@ -118,14 +122,15 @@ class Request(models.Model):
     class Meta:
         managed = True
         db_table = 'request'
-
+        verbose_name_plural = 'Requests'
 
 class Role(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'role'
+        verbose_name_plural = 'Roles'
 
 
 class ScheduleCompany(models.Model):
@@ -141,6 +146,7 @@ class ScheduleCompany(models.Model):
         managed = True
         db_table = 'schedule_company'
         unique_together = (('company_week_day', 'company'),)
+        verbose_name_plural = 'ScheduleCompanys'
 
 
 class ScheduleCompanyUser(models.Model):
@@ -152,7 +158,7 @@ class ScheduleCompanyUser(models.Model):
         managed = True
         db_table = 'schedule_company_user'
         unique_together = (('user', 'schedule_company'),)
-
+        verbose_name_plural = 'ScheduleCompanyUsers'
 
 
 class UserCompany(models.Model):
@@ -170,7 +176,7 @@ class UserCompany(models.Model):
         managed = True
         db_table = 'user_company'
         unique_together = (('email', 'company'), ('id', 'company'),)
-
+        verbose_name_plural = 'UserCompanys'
 
 
 class UserHolidays(models.Model):
@@ -183,7 +189,7 @@ class UserHolidays(models.Model):
         managed = True
         db_table = 'user_holidays'
         unique_together = (('user', 'schedule_company','week'),)
-
+        verbose_name_plural = 'UserHolidayss'
 
 
 class UserType(models.Model):
@@ -196,7 +202,7 @@ class UserType(models.Model):
     class Meta:
         managed = True
         db_table = 'user_type'
-
+        verbose_name_plural = 'UserTypes'
 
 class WeekDay(models.Model):
     daywork = models.ForeignKey('DayName', models.DO_NOTHING)
@@ -210,7 +216,7 @@ class WeekDay(models.Model):
         managed = True
         db_table = 'week_day'
         unique_together = (('daywork', 'company'),)
-
+        verbose_name_plural = 'WeekDays'
 
 class DayName(models.Model):
     dayname = models.IntegerField(blank=True, null=True)
@@ -222,6 +228,6 @@ class DayName(models.Model):
     class Meta:
         managed = True
         db_table = 'day_name'
-
+        verbose_name_plural = 'DayNames'
 
 
