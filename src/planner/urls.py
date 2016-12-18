@@ -27,7 +27,8 @@ urlpatterns = [
     #url(r'', include('api_app.urls')),
 
     #api
-    url(r'^api/company/', include('planner_app.api.urls')),
+    url(r'^api/', include('planner_app.api.urls')),
+
 
 
 ]

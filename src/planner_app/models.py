@@ -160,7 +160,7 @@ class UserCompany(models.Model):
     last_name = models.CharField(max_length=50,blank=True, null=True)
     email = models.CharField(max_length=50)
     user = models.ForeignKey('AuthUser', models.DO_NOTHING,blank=True, null=True)
-
+    slug = models.CharField(max_length=150, null=True)
 
     def __str__(self): return self.first_name
 

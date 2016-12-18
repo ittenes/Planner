@@ -125,7 +125,6 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -160,4 +159,3 @@ EMAIL_CONFIRMATION_SIGNUP = False
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
-
