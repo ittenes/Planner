@@ -3,6 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from planner_app.models import (
     Company,
     UserCompany,
+    WeekDay,
     )
 
 # COMPANY
@@ -77,4 +78,29 @@ class UserCompanyListSerializer(ModelSerializer):
             'last_name',
             'email',
             'user',
+        )
+
+
+# WEEKDAY
+class WeekDayCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = WeekDay
+        fields = (
+            'daywork',
+        )
+
+class WeekDayDetailSerializer(ModelSerializer):
+    class Meta:
+        model = WeekDay
+        fields = (
+            'daywork',
+        )
+
+class WeekDayListSerializer(ModelSerializer):
+    class Meta:
+        model = WeekDay
+        fields = (
+            'id',
+            'daywork',
+            'company',
         )

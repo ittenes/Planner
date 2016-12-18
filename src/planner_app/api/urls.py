@@ -16,6 +16,12 @@ from .views import (
     UserCompanyDetailAPIView,
     UserCompanyListAPIView,
     UserCompanyUpdateAPIView,
+
+    #WEEKDAY
+    WeekDayCreateAPIView,
+    WeekDayDeleteAPIView,
+    WeekDayListAPIView,
+    WeekDayUpdateAPIView,
     )
 
 
@@ -33,4 +39,10 @@ urlpatterns = [
     url(r'^usercompany/(?P<first_name>[\w-]+)/$', UserCompanyDetailAPIView.as_view(), name='detail'),
     url(r'^usercompany/(?P<first_name>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
     url(r'^usercompany/(?P<first_name>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
+
+    #WEEKDAY
+    url(r'^weekday/$', WeekDayListAPIView.as_view(), name='list'),
+    url(r'^weekday/create/$', WeekDayCreateAPIView.as_view(), name='create'),
+    url(r'^weekday/(?P<daywork>[\w-]+)/edit/$', WeekDayUpdateAPIView.as_view(), name='update'),
+    url(r'^weekday/(?P<daywork>[\w-]+)/delete/$', WeekDayDeleteAPIView.as_view(), name='delete'),
 ]
