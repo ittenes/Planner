@@ -2,14 +2,15 @@ from rest_framework.serializers import ModelSerializer
 
 from planner_app.models import Company
 
+# COMPANY
 
-class CompanyCreateSerializer(ModelSerializer):
+class CompanyCreateUpdateSerializer(ModelSerializer):
     class Meta:
         model = Company
         fields = (
             #'id',
             'name',
-            'owner_company',
+            #'owner_company',
             #'active',
         )
 
@@ -19,7 +20,8 @@ class CompanyDetailSerializer(ModelSerializer):
         fields = (
             'id',
             'name',
-            'owner_company',
+            'slug',
+            'user',
             'active',
         )
 
@@ -29,8 +31,9 @@ class CompanyListSerializer(ModelSerializer):
         model = Company
         fields = (
             'name',
-            'owner_company',
+            'user',
             'active',
         )
 
 
+# COMPANY

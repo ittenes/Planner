@@ -40,22 +40,23 @@ class Client(models.Model):
     def __str__(self): return self.name
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'client'
         verbose_name_plural = 'Clients'
 
 class Company(models.Model):
     name = models.CharField(max_length=75)
-    owner_company = models.ForeignKey('AuthUser', models.DO_NOTHING)
+    user = models.ForeignKey('AuthUser', models.DO_NOTHING)
     active = models.IntegerField()
+    slug = models.CharField(max_length=150)
 
 
     def __str__(self): return self.name
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'company'
-        unique_together = (('owner_company', 'name'), ('owner_company', 'active'))
+        unique_together = (('user', 'name'), ('user', 'active'))
         verbose_name_plural = 'Companys'
 
 
@@ -67,7 +68,7 @@ class Planning(models.Model):
     hours = models.IntegerField()
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
     class Meta:
-        managed = False
+        managed = True
         db_table = 'planning'
         verbose_name_plural = 'Plannings'
 
@@ -82,7 +83,7 @@ class Project(models.Model):
     def __str__(self): return self.name
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'project'
         unique_together = (('name', 'client'),('name', 'company'),)
         verbose_name_plural = 'Projects'
@@ -93,7 +94,7 @@ class Provider(models.Model):
     name = models.CharField(max_length=50)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'provider'
         unique_together = (('company', 'cif'),)
         verbose_name_plural = 'Providers'
@@ -111,7 +112,7 @@ class Request(models.Model):
     planned = models.BooleanField(default=False)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'request'
         verbose_name_plural = 'Requests'
 
@@ -119,7 +120,7 @@ class Role(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'role'
         verbose_name_plural = 'Roles'
 
@@ -134,7 +135,7 @@ class ScheduleCompany(models.Model):
         return srtday
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'schedule_company'
         unique_together = (('company_week_day', 'company'),)
         verbose_name_plural = 'ScheduleCompanys'
@@ -146,7 +147,7 @@ class ScheduleCompanyUser(models.Model):
     hour = models.IntegerField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'schedule_company_user'
         unique_together = (('user', 'schedule_company'),)
         verbose_name_plural = 'ScheduleCompanyUsers'
@@ -164,7 +165,7 @@ class UserCompany(models.Model):
     def __str__(self): return self.first_name
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'user_company'
         unique_together = (('email', 'company'), ('id', 'company'),)
         verbose_name_plural = 'UserCompanys'
@@ -177,7 +178,7 @@ class UserHolidays(models.Model):
     week = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'user_holidays'
         unique_together = (('user', 'schedule_company','week'),)
         verbose_name_plural = 'UserHolidayss'
@@ -191,7 +192,7 @@ class UserType(models.Model):
     def __str__(self): return self.type_user
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'user_type'
         verbose_name_plural = 'UserTypes'
 
@@ -204,7 +205,7 @@ class WeekDay(models.Model):
         return daynames
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'week_day'
         unique_together = (('daywork', 'company'),)
         verbose_name_plural = 'WeekDays'
@@ -217,8 +218,6 @@ class DayName(models.Model):
         return days
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'day_name'
         verbose_name_plural = 'DayNames'
-
-
