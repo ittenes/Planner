@@ -124,7 +124,7 @@ class ScheduleCompanyCreateUpdateSerializer(ModelSerializer):
 
 class ScheduleCompanyDetailSerializer(ModelSerializer):
     class Meta:
-        model = ScheduleCompany
+        model = WeekDay
         fields = (
             'id',
             'company_week_day',
@@ -136,6 +136,7 @@ class ScheduleCompanyListSerializer(ModelSerializer):
     class Meta:
         model = ScheduleCompany
         fields = (
+            'id',
             'company_week_day',
             'hours',
             'company',

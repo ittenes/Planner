@@ -44,6 +44,7 @@ from .serializers import (
 
     # WEEKDAY
     WeekDayCreateUpdateSerializer,
+    WeekDayDetailSerializer,
     WeekDayListSerializer,
 
     # SCHEDULECOMPANY
