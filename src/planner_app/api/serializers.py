@@ -4,6 +4,7 @@ from planner_app.models import (
     Company,
     UserCompany,
     WeekDay,
+    ScheduleCompany,
     )
 
 # COMPANY
@@ -102,5 +103,40 @@ class WeekDayListSerializer(ModelSerializer):
         fields = (
             'id',
             'daywork',
+            'company',
+        )
+
+
+# SCHEDULECOMPANY
+class ScheduleCompanyCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = ScheduleCompany
+        fields = (
+            'company_week_day',
+            'hours',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(ScheduleCompanyCreateUpdateSerializer, self).__init__(*args, **kwargs)
+        request_user = self.context['request'].user.id
+        self.fields['company_week_day'].queryset = WeekDay.objects.filter(
+            company=Company.objects.get(user=request_user))
+
+class ScheduleCompanyDetailSerializer(ModelSerializer):
+    class Meta:
+        model = ScheduleCompany
+        fields = (
+            'id',
+            'company_week_day',
+            'hours',
+            'company',
+        )
+
+class ScheduleCompanyListSerializer(ModelSerializer):
+    class Meta:
+        model = ScheduleCompany
+        fields = (
+            'company_week_day',
+            'hours',
             'company',
         )

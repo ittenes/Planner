@@ -29,6 +29,7 @@ from planner_app.models import (
     Company,
     UserCompany,
     WeekDay,
+    ScheduleCompany,
     )
 from .serializers import (
     # COMPANY
@@ -41,9 +42,15 @@ from .serializers import (
     UserCompanyDetailSerializer,
     UserCompanyListSerializer,
 
-    #WEEKDAY
+    # WEEKDAY
     WeekDayCreateUpdateSerializer,
     WeekDayListSerializer,
+
+    # SCHEDULECOMPANY
+    ScheduleCompanyCreateUpdateSerializer,
+    ScheduleCompanyDetailSerializer,
+    ScheduleCompanyListSerializer,
+
     )
 
 # COMPANY
@@ -175,4 +182,39 @@ class WeekDayListAPIView(ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         queryset_list = WeekDay.objects.filter(company=Company.objects.get(user=self.request.user.id))
+        return queryset_list
+
+
+
+# SCHEDULECOMPANY
+
+class ScheduleCompanyCreateAPIView(CreateAPIView):
+    queryset = ScheduleCompany.objects.all()
+    serializer_class = ScheduleCompanyCreateUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self,serializer):
+        serializer.save(company=Company.objects.get(user=self.request.user.id))
+
+
+class ScheduleCompanyUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = ScheduleCompany.objects.all()
+    serializer_class = ScheduleCompanyCreateUpdateSerializer
+    lookup_field = 'company_week_day'
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def perform_update(self,serializer):
+        serializer.save(company=Company.objects.get(user=self.request.user.id))
+
+class ScheduleCompanyDeleteAPIView(DestroyAPIView):
+    queryset = ScheduleCompany.objects.all()
+    serializer_class = ScheduleCompanyDetailSerializer
+    lookup_field = 'company_week_day'
+
+class ScheduleCompanyListAPIView(ListAPIView):
+    serializer_class = ScheduleCompanyListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = ScheduleCompany.objects.filter(company=Company.objects.get(user=self.request.user.id))
         return queryset_list
