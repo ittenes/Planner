@@ -45,8 +45,9 @@ INSTALLED_APPS = [
     # api_rest
     'rest_framework',
     'drf_generators',
+    'rest_framework_docs',
+    'rest_framework_swagger',
     # mnis app
-    #'api_app',
     'planner_app',
 ]
 
@@ -124,6 +125,10 @@ AUTHENTICATION_BACKENDS = (
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
 )
+
+REST_FRAMEWORK_DOCS = {
+    'HIDE_DOCS': False
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

@@ -28,7 +28,8 @@ urlpatterns = [
 
     #api
     url(r'^api/', include('planner_app.api.urls')),
-
+    # docs
+    url(r'^docs/', include('rest_framework_docs.urls')),
 
 
 ]

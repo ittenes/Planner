@@ -175,7 +175,7 @@ class UserHolidaysForm(forms.ModelForm):
         iduser = AuthUser.objects.filter(email=self.user).values('pk')
         print (iduser)
         mycompany = Company.objects.filter(
-            owner_company=iduser).values_list('id', flat=True)
+            user=iduser).values_list('id', flat=True)
         print (mycompany)
         daysmycompany = ScheduleCompany.objects.filter(
             company__in=mycompany).values_list('company_week_day', flat=True)
@@ -209,12 +209,3 @@ class ScheduleCompanyUserForm(forms.ModelForm):
     class Meta:
         model = ScheduleCompanyUser
         fields = ()
-
-
-
-
-
-
-
-
-
