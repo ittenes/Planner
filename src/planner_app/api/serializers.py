@@ -4,13 +4,50 @@ import datetime
 
 from planner_app.models import (
     AuthUser,
+    Client,
     Company,
+    Project,
     UserCompany,
     WeekDay,
     ScheduleCompany,
     ScheduleCompanyUser,
     UserHolidays,
     )
+
+# CLIENTS
+
+class ClientCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = Client
+        fields = (
+            #'id',
+            'name',
+            #'user',
+            #'active',
+            #'slug'
+        )
+
+class ClientDetailSerializer(ModelSerializer):
+    class Meta:
+        model = Client
+        fields = (
+            'id',
+            'name',
+            'company',
+            'active',
+            'slug'
+        )
+
+
+class ClientListSerializer(ModelSerializer):
+    class Meta:
+        model = Client
+        fields = (
+            'name',
+            'company',
+            'active',
+        )
+
 
 # COMPANY
 
@@ -45,70 +82,44 @@ class CompanyListSerializer(ModelSerializer):
             'active',
         )
 
+# PROJECT
 
-
-# USERCOMPANY
-class UserCompanyCreateUpdateSerializer(ModelSerializer):
+class ProjectCreateUpdateSerializer(ModelSerializer):
     class Meta:
-        model = UserCompany
+        model = Project
         fields = (
-            'email',
-            'first_name',
-            'last_name',
-            'type_user',
+            #'id',
+            'name',
+            'client',
+            #'company',
+            #'slug',
+            'status',
+
         )
 
-class UserCompanyDetailSerializer(ModelSerializer):
+class ProjectDetailSerializer(ModelSerializer):
     class Meta:
-        model = UserCompany
+        model = Project
         fields = (
             'id',
+            'name',
+            'client',
             'company',
             'slug',
-            'type_user',
-            'first_name',
-            'last_name',
-            'email',
-            'user',
+            'status',
         )
 
 
-class UserCompanyListSerializer(ModelSerializer):
+class ProjectListSerializer(ModelSerializer):
     class Meta:
-        model = UserCompany
+        model = Project
         fields = (
+            #'id',
+            'name',
+            'client',
             'company',
-            'slug',
-            'type_user',
-            'first_name',
-            'last_name',
-            'email',
-            'user',
-        )
-
-
-# WEEKDAY
-class WeekDayCreateUpdateSerializer(ModelSerializer):
-    class Meta:
-        model = WeekDay
-        fields = (
-            'daywork',
-        )
-
-class WeekDayDetailSerializer(ModelSerializer):
-    class Meta:
-        model = WeekDay
-        fields = (
-            'daywork',
-        )
-
-class WeekDayListSerializer(ModelSerializer):
-    class Meta:
-        model = WeekDay
-        fields = (
-            'id',
-            'daywork',
-            'company',
+            #'slug',
+            'status',
         )
 
 
@@ -146,8 +157,6 @@ class ScheduleCompanyListSerializer(ModelSerializer):
             'hours',
             'company',
         )
-
-
 
 # SCHEDULECOMPANYUSER==================
 
@@ -190,8 +199,47 @@ class ScheduleCompanyUserListSerializer(ModelSerializer):
             'hour',
         )
 
-# USERHOLIDAYS
 
+# USERCOMPANY
+class UserCompanyCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = UserCompany
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+            'type_user',
+        )
+
+class UserCompanyDetailSerializer(ModelSerializer):
+    class Meta:
+        model = UserCompany
+        fields = (
+            'id',
+            'company',
+            'slug',
+            'type_user',
+            'first_name',
+            'last_name',
+            'email',
+            'user',
+        )
+
+
+class UserCompanyListSerializer(ModelSerializer):
+    class Meta:
+        model = UserCompany
+        fields = (
+            'company',
+            'slug',
+            'type_user',
+            'first_name',
+            'last_name',
+            'email',
+            'user',
+        )
+
+# USERHOLIDAYS
 
 class UserHolidaysCreateUpdateSerializer(ModelSerializer):
     class Meta:
@@ -234,13 +282,10 @@ class UserHolidaysCreateUpdateSerializer(ModelSerializer):
             if weeklast >= 0:
                 twotuple += [(keyallweek, valueallweek)]
 
-
-
         # mirar como mostrar las semanas no se si son necesarias
+        # IMPARTANTE: PARA LA ENTRADA DE DATOS NO HACE FALTA QUE HAYA NADA MAS
+        # COMO MUCHO COMPROBAR QUE LAS SEMANAS SEAN LAS QUE CORRESPONDE
         #self.fields['week'] = twotuple
-
-
-
 
 class UserHolidaysDetailSerializer(ModelSerializer):
     class Meta:
@@ -253,7 +298,6 @@ class UserHolidaysDetailSerializer(ModelSerializer):
             'week',
         )
 
-
 class UserHolidaysListSerializer(ModelSerializer):
     class Meta:
         model = UserHolidays
@@ -263,4 +307,29 @@ class UserHolidaysListSerializer(ModelSerializer):
             'user',
             'hour',
             'week',
+        )
+
+
+# WEEKDAY
+class WeekDayCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = WeekDay
+        fields = (
+            'daywork',
+        )
+
+class WeekDayDetailSerializer(ModelSerializer):
+    class Meta:
+        model = WeekDay
+        fields = (
+            'daywork',
+        )
+
+class WeekDayListSerializer(ModelSerializer):
+    class Meta:
+        model = WeekDay
+        fields = (
+            'id',
+            'daywork',
+            'company',
         )

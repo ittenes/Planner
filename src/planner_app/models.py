@@ -35,6 +35,8 @@ class AuthUser(models.Model):
 class Client(models.Model):
     name = models.CharField(max_length=250)
     company = models.ForeignKey('Company', models.DO_NOTHING,)
+    slug = models.CharField(max_length=150, null=True)
+    active = models.IntegerField()
 
 
     def __str__(self): return self.name
@@ -42,6 +44,7 @@ class Client(models.Model):
     class Meta:
         managed = True
         db_table = 'client'
+        unique_together = (('company', 'name'), ('name', 'active'))
         verbose_name_plural = 'Clients'
 
 class Company(models.Model):
@@ -72,13 +75,22 @@ class Planning(models.Model):
         db_table = 'planning'
         verbose_name_plural = 'Plannings'
 
+class ProjectStatus(models.Model):
+    name = models.CharField(max_length=75, null=True)
 
+    def __str__(self): return self.name
+
+    class Meta:
+        managed = True
+        db_table = 'project_status'
+        verbose_name_plural = 'ProjectsStatus'
 
 class Project(models.Model):
     client = models.ForeignKey(Client, models.DO_NOTHING,)
     name = models.CharField(max_length=50, blank=True, null=True)
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
-
+    status = models.ForeignKey(ProjectStatus, models.DO_NOTHING, null=False)
+    slug = models.CharField(max_length=150, null=True)
 
     def __str__(self): return self.name
 
@@ -87,6 +99,10 @@ class Project(models.Model):
         db_table = 'project'
         unique_together = (('name', 'client'),('name', 'company'),)
         verbose_name_plural = 'Projects'
+
+
+
+
 
 class Provider(models.Model):
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)

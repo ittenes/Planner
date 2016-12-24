@@ -4,11 +4,25 @@ from django.contrib import admin
 
 from .views import (
     # COMPANY
+    ClientCreateAPIView,
+    ClientDeleteAPIView,
+    ClientDetailAPIView,
+    ClientListAPIView,
+    ClientUpdateAPIView,
+
+    # COMPANY
     CompanyCreateAPIView,
     CompanyDeleteAPIView,
     CompanyDetailAPIView,
     CompanyListAPIView,
     CompanyUpdateAPIView,
+
+    # USERCOMPANY
+    ProjectCreateAPIView,
+    ProjectDeleteAPIView,
+    ProjectDetailAPIView,
+    ProjectListAPIView,
+    ProjectUpdateAPIView,
 
     # USERCOMPANY
     UserCompanyCreateAPIView,
@@ -47,6 +61,13 @@ from .views import (
 
 
 urlpatterns = [
+    # CLIENTS
+    url(r'^client/$', ClientListAPIView.as_view(), name='list'),
+    url(r'^client/create/$', ClientCreateAPIView.as_view(), name='create'),
+    url(r'^client/(?P<name>[\w-]+)/$', ClientDetailAPIView.as_view(), name='detail'),
+    url(r'^client/(?P<name>[\w-]+)/edit/$', ClientUpdateAPIView.as_view(), name='update'),
+    url(r'^client/(?P<name>[\w-]+)/delete/$', ClientDeleteAPIView.as_view(), name='delete'),
+
     # COMPANY
     url(r'^company/$', CompanyListAPIView.as_view(), name='list'),
     url(r'^company/create/$', CompanyCreateAPIView.as_view(), name='create'),
@@ -54,18 +75,12 @@ urlpatterns = [
     url(r'^company/(?P<name>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
     url(r'^company/(?P<name>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
 
-    # USERCOMPANY
-    url(r'^usercompany/$', UserCompanyListAPIView.as_view(), name='list'),
-    url(r'^usercompany/create/$', UserCompanyCreateAPIView.as_view(), name='create'),
-    url(r'^usercompany/(?P<first_name>[\w-]+)/$', UserCompanyDetailAPIView.as_view(), name='detail'),
-    url(r'^usercompany/(?P<first_name>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
-    url(r'^usercompany/(?P<first_name>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
-
-    # WEEKDAY
-    url(r'^weekday/$', WeekDayListAPIView.as_view(), name='list'),
-    url(r'^weekday/create/$', WeekDayCreateAPIView.as_view(), name='create'),
-    url(r'^weekday/(?P<daywork>[\w-]+)/edit/$', WeekDayUpdateAPIView.as_view(), name='update'),
-    url(r'^weekday/(?P<daywork>[\w-]+)/delete/$', WeekDayDeleteAPIView.as_view(), name='delete'),
+    # PROJECT
+    url(r'^project/$', ProjectListAPIView.as_view(), name='list'),
+    url(r'^project/create/$', ProjectCreateAPIView.as_view(), name='create'),
+    url(r'^project/(?P<name>[\w-]+)/$', ProjectDetailAPIView.as_view(), name='detail'),
+    url(r'^project/(?P<name>[\w-]+)/edit/$', ProjectUpdateAPIView.as_view(), name='update'),
+    url(r'^project/(?P<name>[\w-]+)/delete/$', ProjectDeleteAPIView.as_view(), name='delete'),
 
     # SCHEDULECOMPANY
     url(r'^schedulecompany/$', ScheduleCompanyListAPIView.as_view(), name='list'),
@@ -86,5 +101,19 @@ urlpatterns = [
     url(r'^userholidays/(?P<user>[\[0-9]+)/$', UserHolidaysDetailAPIView.as_view(), name='detail'),
     url(r'^userholidays/(?P<user>[\w-]+)/edit/$', UserHolidaysUpdateAPIView.as_view(), name='update'),
     url(r'^userholidays/(?P<user>[\w-]+)/delete/$', UserHolidaysDeleteAPIView.as_view(), name='delete'),
+
+    # USERCOMPANY
+    url(r'^usercompany/$', UserCompanyListAPIView.as_view(), name='list'),
+    url(r'^usercompany/create/$', UserCompanyCreateAPIView.as_view(), name='create'),
+    url(r'^usercompany/(?P<first_name>[\w-]+)/$', UserCompanyDetailAPIView.as_view(), name='detail'),
+    url(r'^usercompany/(?P<first_name>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
+    url(r'^usercompany/(?P<first_name>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
+
+    # WEEKDAY
+    url(r'^weekday/$', WeekDayListAPIView.as_view(), name='list'),
+    url(r'^weekday/create/$', WeekDayCreateAPIView.as_view(), name='create'),
+    url(r'^weekday/(?P<daywork>[\w-]+)/edit/$', WeekDayUpdateAPIView.as_view(), name='update'),
+    url(r'^weekday/(?P<daywork>[\w-]+)/delete/$', WeekDayDeleteAPIView.as_view(), name='delete'),
+
 
 ]

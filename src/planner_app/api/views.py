@@ -26,20 +26,34 @@ from .permissions import IsOwnerOrReadOnly
 
 from planner_app.models import (
     AuthUser,
+    Client,
     Company,
+    Project,
     ScheduleCompany,
     ScheduleCompanyUser,
     UserCompany,
     UserHolidays,
     WeekDay,
 
+
+
     )
 
 from .serializers import (
+    # CLIENTS
+    ClientCreateUpdateSerializer,
+    ClientDetailSerializer,
+    ClientListSerializer,
+
     # COMPANY
     CompanyCreateUpdateSerializer,
     CompanyDetailSerializer,
     CompanyListSerializer,
+
+    # PROJECT
+    ProjectCreateUpdateSerializer,
+    ProjectDetailSerializer,
+    ProjectListSerializer,
 
     # USERCOMPANY
     UserCompanyCreateUpdateSerializer,
@@ -67,6 +81,56 @@ from .serializers import (
     WeekDayListSerializer,
 
     )
+
+ # CLIENTS -
+
+class ClientCreateAPIView(CreateAPIView):
+    queryset = Client.objects.all()
+    serializer_class = ClientCreateUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(company=Company.objects.get(user=self.request.user.id), active='1')
+
+class ClientDetailAPIView(RetrieveAPIView):
+    serializer_class = ClientDetailSerializer
+    lookup_field = 'name'
+
+    def get_queryset(self, *args, **kwargs):
+        mycompany = Company.objects.get(user=self.request.user.id)
+        queryset_list = Client.objects.filter(
+            company=mycompany)
+        return queryset_list
+
+class ClientUpdateAPIView(RetrieveUpdateAPIView):
+    serializer_class = ClientCreateUpdateSerializer
+    lookup_field = 'name'
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self, *args, **kwargs):
+        mycompany = Company.objects.get(user=self.request.user.id)
+        queryset_list = Client.objects.filter(
+            company=mycompany)
+        return queryset_list
+
+    def perform_update(self,serializer):
+        serializer.save(company=Company.objects.get(user=self.request.user.id), active='1')
+
+class ClientDeleteAPIView(DestroyAPIView):
+    queryset = Client.objects.all()
+    serializer_class = ClientDetailSerializer
+    lookup_field = 'name'
+
+class ClientListAPIView(ListAPIView):
+    serializer_class = ClientDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        mycompany = Company.objects.get(user=self.request.user.id)
+        queryset_list = Client.objects.filter(
+            company=mycompany).order_by('name')
+        return queryset_list
+
 
 # COMPANY
 
@@ -103,6 +167,39 @@ class CompanyListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
+# PROJECT
+
+class ProjectCreateAPIView(CreateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectCreateUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(company=Company.objects.get(user=self.request.user.id))
+
+class ProjectDetailAPIView(RetrieveAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectDetailSerializer
+    lookup_field = 'name'
+
+class ProjectUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectCreateUpdateSerializer
+    lookup_field = 'name'
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(company=Company.objects.get(user=self.request.user.id))
+
+class ProjectDeleteAPIView(DestroyAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectDetailSerializer
+    lookup_field = 'name'
+
+class ProjectListAPIView(ListAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectListSerializer
+    permission_classes = [IsAuthenticated]
 
 
 # USERCOMPANY and hours work by default
@@ -111,8 +208,6 @@ class UserCompanyCreateAPIView(CreateAPIView):
     queryset = ScheduleCompanyUser.objects.all()
     serializer_class = UserCompanyCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
-
-
 
     def perform_create(self, serializer):
         serializer.save(
@@ -184,39 +279,45 @@ class UserCompanyListAPIView(ListAPIView):
         return queryset_list
 
 
+# USER HOLIDAYS -
 
-# DAYWORK OT THE COMPANY
-
-class WeekDayCreateAPIView(CreateAPIView):
-    queryset = WeekDay.objects.all()
-    serializer_class = WeekDayCreateUpdateSerializer
+class UserHolidaysCreateAPIView(CreateAPIView):
+    queryset = UserHolidays.objects.all()
+    serializer_class = UserHolidaysCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self,serializer):
-        serializer.save(company=Company.objects.get(user=self.request.user.id))
 
-class WeekDayUpdateAPIView(RetrieveUpdateAPIView):
-    queryset = WeekDay.objects.all()
-    serializer_class = WeekDayCreateUpdateSerializer
-    lookup_field = 'daywok'
+class UserHolidaysDetailAPIView(RetrieveAPIView):
+    queryset = UserHolidays.objects.all()
+    serializer_class = CompanyDetailSerializer
+    lookup_field = 'company_week_day'
+
+
+class UserHolidaysUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = UserHolidays.objects.all()
+    serializer_class = UserHolidaysCreateUpdateSerializer
+    lookup_field = 'company_week_day'
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def perform_update(self,serializer):
         serializer.save(company=Company.objects.get(user=self.request.user.id))
 
-class WeekDayDeleteAPIView(DestroyAPIView):
-    queryset = WeekDay.objects.all()
-    serializer_class = UserCompanyDetailSerializer
-    lookup_field = 'daywork'
+class UserHolidaysDeleteAPIView(DestroyAPIView):
+    queryset = UserHolidays.objects.all()
+    serializer_class = UserHolidaysDetailSerializer
+    lookup_field = 'company_week_day'
 
-class WeekDayListAPIView(ListAPIView):
-    serializer_class = WeekDayListSerializer
+class UserHolidaysListAPIView(ListAPIView):
+    serializer_class = UserHolidaysDetailSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self, *args, **kwargs):
-        queryset_list = WeekDay.objects.filter(company=Company.objects.get(user=self.request.user.id))
+        mycompany = Company.objects.get(user=self.request.user.id)
+        users = UserCompany.objects.filter(
+            company=mycompany).values_list('pk', flat=True)
+        queryset_list = UserHolidays.objects.filter(
+            user__in=users).order_by('week')
         return queryset_list
-
 
 
 # SCHEDULECOMPANY
@@ -290,43 +391,41 @@ class ScheduleCompanyUserListAPIView(ListAPIView):
         return queryset_list
 
 
+# WORKDAY OT THE COMPANY
 
-# USER HOLIDAYS -
-
-class UserHolidaysCreateAPIView(CreateAPIView):
-    queryset = UserHolidays.objects.all()
-    serializer_class = UserHolidaysCreateUpdateSerializer
+class WeekDayCreateAPIView(CreateAPIView):
+    queryset = WeekDay.objects.all()
+    serializer_class = WeekDayCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self,serializer):
+        serializer.save(company=Company.objects.get(user=self.request.user.id))
 
-class UserHolidaysDetailAPIView(RetrieveAPIView):
-    queryset = UserHolidays.objects.all()
-    serializer_class = CompanyDetailSerializer
-    lookup_field = 'name'
-
-
-class UserHolidaysUpdateAPIView(RetrieveUpdateAPIView):
-    queryset = UserHolidays.objects.all()
-    serializer_class = UserHolidaysCreateUpdateSerializer
-    lookup_field = 'company_week_day'
+class WeekDayUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = WeekDay.objects.all()
+    serializer_class = WeekDayCreateUpdateSerializer
+    lookup_field = 'daywok'
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def perform_update(self,serializer):
         serializer.save(company=Company.objects.get(user=self.request.user.id))
 
-class UserHolidaysDeleteAPIView(DestroyAPIView):
-    queryset = UserHolidays.objects.all()
-    serializer_class = UserHolidaysDetailSerializer
-    lookup_field = 'company_week_day'
+class WeekDayDeleteAPIView(DestroyAPIView):
+    queryset = WeekDay.objects.all()
+    serializer_class = UserCompanyDetailSerializer
+    lookup_field = 'daywork'
 
-class UserHolidaysListAPIView(ListAPIView):
-    serializer_class = UserHolidaysDetailSerializer
+class WeekDayListAPIView(ListAPIView):
+    serializer_class = WeekDayListSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self, *args, **kwargs):
-        mycompany = Company.objects.get(user=self.request.user.id)
-        users = UserCompany.objects.filter(
-            company=mycompany).values_list('pk', flat=True)
-        queryset_list = UserHolidays.objects.filter(
-            user__in=users).order_by('week')
+        queryset_list = WeekDay.objects.filter(company=Company.objects.get(user=self.request.user.id))
         return queryset_list
+
+
+
+
+
+
+#
