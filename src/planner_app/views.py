@@ -10,7 +10,7 @@ from .models import Client
 from .models import Project
 from .models import WeekDay
 from .models import ScheduleCompany
-from .models import Request
+from .models import Petition
 from .models import UserHolidays
 from .models import ScheduleCompanyUser
 from .models import Planning
@@ -23,7 +23,7 @@ from .forms import ClientForm
 from .forms import ProjectForm
 from .forms import WeekDayForm
 from .forms import ScheduleCompanyForm
-from .forms import RequestForm
+from .forms import PetitionForm
 from .forms import UserHolidaysForm
 from .forms import ScheduleCompanyUserForm
 
@@ -241,19 +241,19 @@ def schedulecompanynew(request):
 
 # Request list
 
-def request_list(request):
-    myuser = request.user.id
-    requestlist = Request.objects.filter(user=myuser).order_by(
+def petition_list(request):
+    myuser = Petition.user.id
+    requestlist = Petition.objects.filter(user=myuser).order_by(
         'week_number', 'resource', 'project')
-    return render(request, 'requestlist.html', {'requestlist': requestlist})
+    return render(request, 'petitionlist.html', {'requestlist': requestlist})
 
 # new request
 
 
-def requestnew(request):
+def petitionnew(request):
 
     if request.method == "POST":
-        requestform = RequestForm(request.user, request.POST)
+        requestform = PetitionForm(request.user, request.POST)
 
         if requestform.is_valid():
             requestnew = requestform.save(commit=False)
@@ -261,11 +261,11 @@ def requestnew(request):
             requestnew.company = Company.objects.get(
                 owner_company=request.user.id)
             requestnew.save()
-            return redirect('views.request_list',)
+            return redirect('views.petition_list',)
 
     else:
-        requestform = RequestForm(request.user)
-    return render(request, 'request.html', {'requestform': requestform})
+        requestform = PetitionForm(request.user)
+    return render(request, 'petiton.html', {'requestform': requestform})
 
 
 # USER HOLIDAYS -
@@ -348,7 +348,7 @@ def planning(request):
     def project_repit(week_first, week_last,):
         repitpro = []
         for w in range(week_first, week_last):
-            nameprolist = Request.objects.filter(
+            nameprolist = Petition.objects.filter(
                 company=mycompany, week_number=w).values_list('project')
             repitpro += [(nameprolist)]
         print ('primera muestra', repitpro)
@@ -385,7 +385,7 @@ def planning(request):
         print ('variables de proyectos', listpro)
         profirst = []
         for pr in listpro:
-            reqtoplann = Request.objects.filter(project=pr).order_by(
+            reqtoplann = Petition.objects.filter(project=pr).order_by(
                 'week_number', 'resource').values_list('pk')
             profirst += [(reqtoplann)]
         print ('bruto de lista', profirst)
@@ -406,7 +406,7 @@ def planning(request):
         for prog in profirst_list:
             print ('proyecto id del for', prog)
             # identifico el proyecto
-            prog_rec = Request.objects.get(pk=prog)
+            prog_rec = Petition.objects.get(pk=prog)
             print('proyecto_id', prog_rec)
 
             # miro si el proyecto esta ya planificado para sacarlo del loop
@@ -555,7 +555,7 @@ def planning(request):
     # lista todos las peticiones de recurso que hay
 
     myuser = request.user.id
-    nameprolist = Request.objects.filter(id__in=list_no_plannig).order_by(
+    nameprolist = Petition.objects.filter(id__in=list_no_plannig).order_by(
         'week_number', 'resource', 'project')
 
     return render(request, 'plannerlist.html', {'nameprolist': nameprolist})

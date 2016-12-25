@@ -32,8 +32,8 @@ urlpatterns = [
     url(r'^schedulecompany/list/', views.schedulecompany_list, name='schedulecompanylist'),
 
     # REQUEST
-    url(r'^request/new/', views.requestnew, name='request'),
-    url(r'^request/list/', views.request_list, name='requestlist'),
+    url(r'^petition/new/', views.petitionnew, name='petition'),
+    url(r'^petition/list/', views.petition_list, name='petitionlist'),
 
     # HOLIDAYS
     url(r'^holiday/new/', views.userholidaysnew, name='holiday'),

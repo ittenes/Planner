@@ -6,6 +6,7 @@ from planner_app.models import (
     AuthUser,
     Client,
     Company,
+    Petition,
     Project,
     UserCompany,
     WeekDay,
@@ -81,6 +82,70 @@ class CompanyListSerializer(ModelSerializer):
             'user',
             'active',
         )
+
+# PETITION
+
+class PetitionCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = Petition
+        fields = (
+            #'id',
+            #'company',
+            'project',
+            'resource',
+            'time',
+            'day_week_in',
+            'day_week_out',
+            'week_number',
+            #'planned',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(PetitionCreateUpdateSerializer, self).__init__(*args, **kwargs)
+        # only show the resources of de user company
+        request_user = self.context['request'].user.id
+        mycompany = Company.objects.filter(user=request_user).values_list('id', flat=True)
+        self.fields['project'].queryset = Project.objects.filter(company=mycompany)
+        self.fields['resource'].queryset = UserCompany.objects.filter(company=mycompany)
+        # select de week's number. only allow select this week or one of the
+        # the next five
+
+        today = datetime.date.today()
+        week = today.isocalendar()[1]
+        weekfive = (week + 1, week + 2, week + 3, week + 4, week + 5)
+        self.fields['week_number'].ChoiceField = weekfive
+
+class PetitionDetailSerializer(ModelSerializer):
+    class Meta:
+        model = Petition
+        fields = (
+            'id',
+            'company',
+            'project',
+            'resource',
+            'time',
+            'day_week_in',
+            'day_week_out',
+            'week_number',
+            'planned',
+        )
+
+
+class PetitionListSerializer(ModelSerializer):
+    class Meta:
+        model = Petition
+        fields = (
+            #'id',
+            'company',
+            'project',
+            'resource',
+            'time',
+            'day_week_in',
+            'day_week_out',
+            'week_number',
+            'planned',
+        )
+
 
 # PROJECT
 

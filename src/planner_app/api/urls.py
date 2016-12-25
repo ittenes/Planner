@@ -3,7 +3,7 @@ from django.contrib import admin
 
 
 from .views import (
-    # COMPANY
+    # CLIENT
     ClientCreateAPIView,
     ClientDeleteAPIView,
     ClientDetailAPIView,
@@ -17,7 +17,14 @@ from .views import (
     CompanyListAPIView,
     CompanyUpdateAPIView,
 
-    # USERCOMPANY
+    # PETITION
+    PetitionCreateAPIView,
+    PetitionDeleteAPIView,
+    PetitionDetailAPIView,
+    PetitionListAPIView,
+    PetitionUpdateAPIView,
+
+    # PROJECTS
     ProjectCreateAPIView,
     ProjectDeleteAPIView,
     ProjectDetailAPIView,
@@ -74,6 +81,13 @@ urlpatterns = [
     url(r'^company/(?P<name>[\w-]+)/$', CompanyDetailAPIView.as_view(), name='detail'),
     url(r'^company/(?P<name>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
     url(r'^company/(?P<name>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
+
+    # PETITION
+    url(r'^petition/$', PetitionListAPIView.as_view(), name='list'),
+    url(r'^petition/create/$', PetitionCreateAPIView.as_view(), name='create'),
+    url(r'^petition/(?P<project>[\w-]+)/$', PetitionDetailAPIView.as_view(), name='detail'),
+    url(r'^petition/(?P<project>[\w-]+)/edit/$', PetitionUpdateAPIView.as_view(), name='update'),
+    url(r'^petition/(?P<project>[\w-]+)/delete/$', PetitionDeleteAPIView.as_view(), name='delete'),
 
     # PROJECT
     url(r'^project/$', ProjectListAPIView.as_view(), name='list'),

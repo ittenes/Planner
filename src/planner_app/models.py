@@ -116,7 +116,7 @@ class Provider(models.Model):
         verbose_name_plural = 'Providers'
 
 
-class Request(models.Model):
+class Petition(models.Model):
     user = models.ForeignKey('AuthUser', models.DO_NOTHING,blank=False, null=True)
     project = models.ForeignKey('Project', models.DO_NOTHING, blank=False, null=True)
     time = models.IntegerField(blank=False, null=True)
@@ -129,8 +129,8 @@ class Request(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'request'
-        verbose_name_plural = 'Requests'
+        db_table = 'petition'
+        verbose_name_plural = 'Petition'
 
 class Role(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)

@@ -3,7 +3,7 @@ import datetime
 
 # USER COMPANY
 
-from .models import UserCompany, UserType, Company, Client, Project, WeekDay, ScheduleCompany, Request, AuthUser, DayName, UserHolidays, ScheduleCompanyUser
+from .models import UserCompany, UserType, Company, Client, Project, WeekDay, ScheduleCompany, Petition, AuthUser, DayName, UserHolidays, ScheduleCompanyUser
 
 
 class UserCompanyForm(forms.ModelForm):
@@ -122,18 +122,18 @@ class ScheduleCompanyForm(forms.ModelForm):
             company=mycompany).exclude(id__in=mydayscomp)
 
 
-# REQUEST
+# PETITION
 
-class RequestForm(forms.ModelForm):
+class PetitionForm(forms.ModelForm):
     class Meta:
-        model = Request
+        model = Petition
         fields = ('project', 'time', 'resource', 'day_week_in',
                   'day_week_out', 'week_number',)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
         # request is a required parameter for this form.
-        super(RequestForm, self).__init__(*args, **kwargs)
+        super(PetitionForm, self).__init__(*args, **kwargs)
         # only show the resources of de user company
         iduser = AuthUser.objects.filter(email=self.user).values('pk')
         print (iduser)
