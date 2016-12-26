@@ -1,4 +1,8 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import (
+    HyperlinkedIdentityField,
+    ModelSerializer,
+    SerializerMethodField
+    )
 
 import datetime
 
@@ -62,6 +66,9 @@ class CompanyCreateUpdateSerializer(ModelSerializer):
             #'active',
         )
 
+
+
+
 class CompanyDetailSerializer(ModelSerializer):
     class Meta:
         model = Company
@@ -81,6 +88,7 @@ class CompanyListSerializer(ModelSerializer):
             'name',
             'user',
             'active',
+            'slug',
         )
 
 # PETITION

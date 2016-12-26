@@ -7,7 +7,15 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from __future__ import unicode_literals
 
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.signals import pre_save
+from django.utils import timezone
+from django.utils.safestring import mark_safe
+from django.utils.text import slugify
+
 import datetime
 
 
@@ -237,3 +245,46 @@ class DayName(models.Model):
         managed = True
         db_table = 'day_name'
         verbose_name_plural = 'DayNames'
+
+
+
+
+# SLUG CREATE
+def create_slug(instance, new_slug=None):
+    slug = slugify(instance.name)
+    if new_slug is not None:
+        slug = new_slug
+    qs_client = Client.objects.filter(slug=slug).order_by("-id")
+    qs_company = Company.objects.filter(slug=slug).order_by("-id")
+    qs_project = Project.objects.filter(slug=slug).order_by("-id")
+    qs_usercompany = UserCompany.objects.filter(slug=slug).order_by("-id")
+
+    exists_client = qs_client.exists()
+    exists_company = qs_company.exists()
+    exists_project = qs_project.exists()
+    exists_usercompany = qs_usercompany.exists()
+
+    if exists_client :
+        new_slug = "%s-%s" %(slug, qs_client.first().id)
+        return create_slug(instance, new_slug=new_slug)
+    elif exists_company:
+        new_slug = "%s-%s" %(slug, qs_company.first().id)
+        return create_slug(instance, new_slug=new_slug)
+    elif exists_project:
+        new_slug = "%s-%s" %(slug, qs_project.first().id)
+        return create_slug(instance, new_slug=new_slug)
+    elif exists_usercompany:
+        new_slug = "%s-%s" %(slug, qs_usercompany.first().id)
+        return create_slug(instance, new_slug=new_slug)
+
+    return slug
+
+
+def pre_save_post_receiver(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = create_slug(instance)
+
+pre_save.connect(pre_save_post_receiver, sender=Client)
+pre_save.connect(pre_save_post_receiver, sender=Company)
+pre_save.connect(pre_save_post_receiver, sender=Project)
+pre_save.connect(pre_save_post_receiver, sender=UserCompany)

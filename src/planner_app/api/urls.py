@@ -71,16 +71,16 @@ urlpatterns = [
     # CLIENTS
     url(r'^client/$', ClientListAPIView.as_view(), name='list'),
     url(r'^client/create/$', ClientCreateAPIView.as_view(), name='create'),
-    url(r'^client/(?P<name>[\w-]+)/$', ClientDetailAPIView.as_view(), name='detail'),
-    url(r'^client/(?P<name>[\w-]+)/edit/$', ClientUpdateAPIView.as_view(), name='update'),
-    url(r'^client/(?P<name>[\w-]+)/delete/$', ClientDeleteAPIView.as_view(), name='delete'),
+    url(r'^client/(?P<slug>[\w-]+)/$', ClientDetailAPIView.as_view(), name='detail'),
+    url(r'^client/(?P<slug>[\w-]+)/edit/$', ClientUpdateAPIView.as_view(), name='update'),
+    url(r'^client/(?P<slug>[\w-]+)/delete/$', ClientDeleteAPIView.as_view(), name='delete'),
 
     # COMPANY
     url(r'^company/$', CompanyListAPIView.as_view(), name='list'),
     url(r'^company/create/$', CompanyCreateAPIView.as_view(), name='create'),
-    url(r'^company/(?P<name>[\w-]+)/$', CompanyDetailAPIView.as_view(), name='detail'),
-    url(r'^company/(?P<name>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
-    url(r'^company/(?P<name>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
+    url(r'^company/(?P<slug>[\w-]+)/$', CompanyDetailAPIView.as_view(), name='detail'),
+    url(r'^company/(?P<slug>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
+    url(r'^company/(?P<slug>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
 
     # PETITION
     url(r'^petition/$', PetitionListAPIView.as_view(), name='list'),
@@ -92,9 +92,9 @@ urlpatterns = [
     # PROJECT
     url(r'^project/$', ProjectListAPIView.as_view(), name='list'),
     url(r'^project/create/$', ProjectCreateAPIView.as_view(), name='create'),
-    url(r'^project/(?P<name>[\w-]+)/$', ProjectDetailAPIView.as_view(), name='detail'),
-    url(r'^project/(?P<name>[\w-]+)/edit/$', ProjectUpdateAPIView.as_view(), name='update'),
-    url(r'^project/(?P<name>[\w-]+)/delete/$', ProjectDeleteAPIView.as_view(), name='delete'),
+    url(r'^project/(?P<slug>[\w-]+)/$', ProjectDetailAPIView.as_view(), name='detail'),
+    url(r'^project/(?P<slug>[\w-]+)/edit/$', ProjectUpdateAPIView.as_view(), name='update'),
+    url(r'^project/(?P<slug>[\w-]+)/delete/$', ProjectDeleteAPIView.as_view(), name='delete'),
 
     # SCHEDULECOMPANY
     url(r'^schedulecompany/$', ScheduleCompanyListAPIView.as_view(), name='list'),
@@ -119,9 +119,9 @@ urlpatterns = [
     # USERCOMPANY
     url(r'^usercompany/$', UserCompanyListAPIView.as_view(), name='list'),
     url(r'^usercompany/create/$', UserCompanyCreateAPIView.as_view(), name='create'),
-    url(r'^usercompany/(?P<first_name>[\w-]+)/$', UserCompanyDetailAPIView.as_view(), name='detail'),
-    url(r'^usercompany/(?P<first_name>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
-    url(r'^usercompany/(?P<first_name>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
+    url(r'^usercompany/(?P<slug>[\w-]+)/$', UserCompanyDetailAPIView.as_view(), name='detail'),
+    url(r'^usercompany/(?P<slug>[\w-]+)/edit/$', CompanyUpdateAPIView.as_view(), name='update'),
+    url(r'^usercompany/(?P<slug>[\w-]+)/delete/$', CompanyDeleteAPIView.as_view(), name='delete'),
 
     # WEEKDAY
     url(r'^weekday/$', WeekDayListAPIView.as_view(), name='list'),

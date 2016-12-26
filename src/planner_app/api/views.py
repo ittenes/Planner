@@ -29,6 +29,7 @@ from planner_app.models import (
     Client,
     Company,
     Petition,
+    Planning,
     Project,
     ScheduleCompany,
     ScheduleCompanyUser,
@@ -52,6 +53,11 @@ from .serializers import (
     PetitionCreateUpdateSerializer,
     PetitionDetailSerializer,
     PetitionListSerializer,
+
+    # PLANNING
+    # PlannigCreateUpdateSerializer,
+    # PlannigDetailSerializer,
+    # PlannigListSerializer,
 
     # PROJECT
     ProjectCreateUpdateSerializer,
@@ -209,6 +215,48 @@ class PetitionListAPIView(ListAPIView):
     queryset = Petition.objects.all()
     serializer_class = PetitionListSerializer
     permission_classes = [IsAuthenticated]
+
+
+# PLANNING
+
+# class PlanningCreateAPIView(CreateAPIView):
+#     queryset = Planning.objects.all()
+#     serializer_class = PlanningCreateUpdateSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def perform_create(self, serializer):
+#         serializer.save(
+#             company=Company.objects.get(user=self.request.user.id),
+#             user=AuthUser.objects.get(id=self.request.user.id)
+#             )
+#
+# class PlanningDetailAPIView(RetrieveAPIView):
+#     queryset = Planning.objects.all()
+#     serializer_class = PlanningDetailSerializer
+#     lookup_field = 'project'
+#
+# class PlanningUpdateAPIView(RetrieveUpdateAPIView):
+#     queryset = Planning.objects.all()
+#     serializer_class = PlanningCreateUpdateSerializer
+#     lookup_field = 'project'
+#     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+#
+#     def perform_create(self, serializer):
+#         serializer.save(
+#             company=Company.objects.get(user=self.request.user.id),
+#             user=AuthUser.objects.get(id=self.request.user.id)
+#             )
+#
+# class PlanningDeleteAPIView(DestroyAPIView):
+#     queryset = Planning.objects.all()
+#     serializer_class = PlanningDetailSerializer
+#     lookup_field = 'project'
+#
+# class PlanningListAPIView(ListAPIView):
+#     queryset = Planning.objects.all()
+#     serializer_class = PlanningListSerializer
+#     permission_classes = [IsAuthenticated]
+#
 
 
 # PROJECT
