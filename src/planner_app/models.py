@@ -76,6 +76,7 @@ class Planning(models.Model):
     resource = models.ForeignKey('UserCompany', models.DO_NOTHING, blank=False, null=True)
     week = models.IntegerField(blank=True, null=True)
     dayweek = models.IntegerField()
+    year = models.IntegerField(blank=True, null=True)
     hours = models.IntegerField()
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
     class Meta:
@@ -93,6 +94,8 @@ class ProjectStatus(models.Model):
         db_table = 'project_status'
         verbose_name_plural = 'ProjectsStatus'
 
+
+
 class Project(models.Model):
     client = models.ForeignKey(Client, models.DO_NOTHING,)
     name = models.CharField(max_length=50, blank=True, null=True)
@@ -107,9 +110,6 @@ class Project(models.Model):
         db_table = 'project'
         unique_together = (('name', 'client'),('name', 'company'),)
         verbose_name_plural = 'Projects'
-
-
-
 
 
 class Provider(models.Model):
@@ -132,6 +132,7 @@ class Petition(models.Model):
     day_week_in = models.IntegerField(null=True)
     day_week_out = models.IntegerField(blank=False, null=True)
     week_number = models.IntegerField(blank=False, null=True)
+    year = models.IntegerField(blank=True, null=True)
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
     planned = models.BooleanField(default=False)
 
@@ -224,7 +225,7 @@ class WeekDay(models.Model):
     daywork = models.ForeignKey('DayName', models.DO_NOTHING)
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
 
-    def __str__(self):
+    def __str__(self): #return self.daywork
         daynames = str(self.daywork)
         return daynames
 
@@ -237,7 +238,7 @@ class WeekDay(models.Model):
 class DayName(models.Model):
     dayname = models.IntegerField(blank=True, null=True)
 
-    def __str__(self):
+    def __str__(self):#return self.dayname
         days = str(self.dayname)
         return days
 
@@ -251,7 +252,11 @@ class DayName(models.Model):
 
 # SLUG CREATE
 def create_slug(instance, new_slug=None):
-    slug = slugify(instance.name)
+    if instance.name:
+        slug = slugify(instance.name)
+    else:
+        slug = slugify(instance.first_name + instance.last_name + instance.id)
+
     if new_slug is not None:
         slug = new_slug
     qs_client = Client.objects.filter(slug=slug).order_by("-id")
@@ -287,4 +292,4 @@ def pre_save_post_receiver(sender, instance, *args, **kwargs):
 pre_save.connect(pre_save_post_receiver, sender=Client)
 pre_save.connect(pre_save_post_receiver, sender=Company)
 pre_save.connect(pre_save_post_receiver, sender=Project)
-pre_save.connect(pre_save_post_receiver, sender=UserCompany)
+#pre_save.connect(pre_save_post_receiver, sender=UserCompany)

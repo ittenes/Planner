@@ -534,7 +534,7 @@ def planning(request):
             else:
                 pass
 
-        return list_no_plannig
+
     # Creo las planificaciones primero las repetidas despues en orden decreciente de alcance
     print('start semana anterior ===============')
     crate_plannig(listrepit)

@@ -11,6 +11,7 @@ from planner_app.models import (
     Client,
     Company,
     Petition,
+    Planning,
     Project,
     UserCompany,
     WeekDay,
@@ -43,7 +44,6 @@ class ClientDetailSerializer(ModelSerializer):
             'slug'
         )
 
-
 class ClientListSerializer(ModelSerializer):
     class Meta:
         model = Client
@@ -66,9 +66,6 @@ class CompanyCreateUpdateSerializer(ModelSerializer):
             #'active',
         )
 
-
-
-
 class CompanyDetailSerializer(ModelSerializer):
     class Meta:
         model = Company
@@ -80,7 +77,6 @@ class CompanyDetailSerializer(ModelSerializer):
             'active',
         )
 
-
 class CompanyListSerializer(ModelSerializer):
     class Meta:
         model = Company
@@ -91,9 +87,12 @@ class CompanyListSerializer(ModelSerializer):
             'slug',
         )
 
+
 # PETITION
 
 class PetitionCreateUpdateSerializer(ModelSerializer):
+    #week_number = SerializerMethodField()
+
     class Meta:
         model = Petition
         fields = (
@@ -105,8 +104,24 @@ class PetitionCreateUpdateSerializer(ModelSerializer):
             'day_week_in',
             'day_week_out',
             'week_number',
+            'year_pet'
             #'planned',
         )
+
+    # NO SE SI ES NECESARIO HACER ESTO PARA INTRODUCIR LOS DATOS
+    # def get_week_number(self, obj):
+    #     today = datetime.date.today()
+    #     week = today.isocalendar()[1]
+    #     #weekfive = (week + 1, week + 2, week + 3, week + 4, week + 5)
+    #     year_choices = []
+    #     for r in range(, (datetime.datetime.now().week),(datetime.datetime.now().week+4)):
+    #         year_choices.append((r,r))
+    #     weekfive = [(week + 1, week + 1),
+    #                 (week + 2, week + 2),
+    #                 (week + 3, week + 3),
+    #                 (week + 4, week + 4),
+    #                 (week + 5, week + 5)]
+    #     return weekfive
 
     def __init__(self, *args, **kwargs):
         super(PetitionCreateUpdateSerializer, self).__init__(*args, **kwargs)
@@ -118,10 +133,12 @@ class PetitionCreateUpdateSerializer(ModelSerializer):
         # select de week's number. only allow select this week or one of the
         # the next five
 
-        today = datetime.date.today()
-        week = today.isocalendar()[1]
-        weekfive = (week + 1, week + 2, week + 3, week + 4, week + 5)
-        self.fields['week_number'].ChoiceField = weekfive
+    # def get_week_number(self, obj):
+    #     today = datetime.date.today()
+    #     week = today.isocalendar()[1]
+    #     weekfive = (week + 1, week + 2, week + 3, week + 4, week + 5)
+    #     return ('1','2','3')
+
 
 class PetitionDetailSerializer(ModelSerializer):
     class Meta:
@@ -137,7 +154,6 @@ class PetitionDetailSerializer(ModelSerializer):
             'week_number',
             'planned',
         )
-
 
 class PetitionListSerializer(ModelSerializer):
     class Meta:
@@ -155,6 +171,49 @@ class PetitionListSerializer(ModelSerializer):
         )
 
 
+ # PLANNING
+
+class PlanningCreateUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = Planning
+        fields = (
+            # #'id',
+            # 'project',
+            # 'resource',
+            # 'week',
+            # 'dayweek',
+            # 'hours',
+            # 'company',
+
+        )
+
+class PlanningDetailSerializer(ModelSerializer):
+    class Meta:
+        model = Planning
+        fields = (
+            'id',
+            'project',
+            'resource',
+            'week',
+            'dayweek',
+            'hours',
+            'company',
+        )
+
+class PlanningListSerializer(ModelSerializer):
+    class Meta:
+        model = Planning
+        fields = (
+            #'id',
+            'project',
+            'resource',
+            'week',
+            'dayweek',
+            'hours',
+            'company',
+        )
+
+
 # PROJECT
 
 class ProjectCreateUpdateSerializer(ModelSerializer):
@@ -167,8 +226,15 @@ class ProjectCreateUpdateSerializer(ModelSerializer):
             #'company',
             #'slug',
             'status',
+            )
 
-        )
+    def __init__(self, *args, **kwargs):
+        super(ProjectCreateUpdateSerializer, self).__init__(*args, **kwargs)
+        request_user = self.context['request'].user.id
+        self.fields['client'].queryset = Client.objects.filter(
+            company=Company.objects.get(user=request_user))
+
+
 
 class ProjectDetailSerializer(ModelSerializer):
     class Meta:
@@ -181,7 +247,6 @@ class ProjectDetailSerializer(ModelSerializer):
             'slug',
             'status',
         )
-
 
 class ProjectListSerializer(ModelSerializer):
     class Meta:
@@ -231,6 +296,7 @@ class ScheduleCompanyListSerializer(ModelSerializer):
             'company',
         )
 
+
 # SCHEDULECOMPANYUSER==================
 
 class ScheduleCompanyUserCreateUpdateSerializer(ModelSerializer):
@@ -261,7 +327,6 @@ class ScheduleCompanyUserDetailSerializer(ModelSerializer):
             'hour',
         )
 
-
 class ScheduleCompanyUserListSerializer(ModelSerializer):
     class Meta:
         model = ScheduleCompanyUser
@@ -274,6 +339,7 @@ class ScheduleCompanyUserListSerializer(ModelSerializer):
 
 
 # USERCOMPANY
+
 class UserCompanyCreateUpdateSerializer(ModelSerializer):
     class Meta:
         model = UserCompany
@@ -298,7 +364,6 @@ class UserCompanyDetailSerializer(ModelSerializer):
             'user',
         )
 
-
 class UserCompanyListSerializer(ModelSerializer):
     class Meta:
         model = UserCompany
@@ -311,6 +376,7 @@ class UserCompanyListSerializer(ModelSerializer):
             'email',
             'user',
         )
+
 
 # USERHOLIDAYS
 
@@ -384,6 +450,7 @@ class UserHolidaysListSerializer(ModelSerializer):
 
 
 # WEEKDAY
+
 class WeekDayCreateUpdateSerializer(ModelSerializer):
     class Meta:
         model = WeekDay
