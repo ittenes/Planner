@@ -92,16 +92,16 @@ urlpatterns = [
     # PETITION
     url(r'^petition/$', PetitionListAPIView.as_view(), name='list'),
     url(r'^petition/create/$', PetitionCreateAPIView.as_view(), name='create'),
-    url(r'^petition/(?P<project>[\w-]+)/$', PetitionDetailAPIView.as_view(), name='detail'),
-    url(r'^petition/(?P<project>[\w-]+)/edit/$', PetitionUpdateAPIView.as_view(), name='update'),
-    url(r'^petition/(?P<project>[\w-]+)/delete/$', PetitionDeleteAPIView.as_view(), name='delete'),
+    url(r'^petition/(?P<id>[\w-]+)/$', PetitionDetailAPIView.as_view(), name='detail'),
+    url(r'^petition/(?P<id>[\w-]+)/edit/$', PetitionUpdateAPIView.as_view(), name='update'),
+    url(r'^petition/(?P<id>[\w-]+)/delete/$', PetitionDeleteAPIView.as_view(), name='delete'),
 
     # PLANNING
     url(r'^planning/$', PlanningListAPIView.as_view(), name='list'),
     url(r'^planning/create/$', PlanningCreateAPIView.as_view(), name='create'),
-    url(r'^planning/(?P<project>[\w-]+)/$', PlanningDetailAPIView.as_view(), name='detail'),
-    url(r'^planning/(?P<project>[\w-]+)/edit/$', PlanningUpdateAPIView.as_view(), name='update'),
-    url(r'^planning/(?P<project>[\w-]+)/delete/$', PlanningDeleteAPIView.as_view(), name='delete'),
+    url(r'^planning/(?P<id>[\w-]+)/$', PlanningDetailAPIView.as_view(), name='detail'),
+    url(r'^planning/(?P<id>[\w-]+)/edit/$', PlanningUpdateAPIView.as_view(), name='update'),
+    url(r'^planning/(?P<id>[\w-]+)/delete/$', PlanningDeleteAPIView.as_view(), name='delete'),
 
     # PROJECT
     url(r'^project/$', ProjectListAPIView.as_view(), name='list'),

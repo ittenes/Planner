@@ -164,18 +164,11 @@ class HorsProjectsUserPlanning():
                 # miro los dias que el proyecto tiene establcidos de trabajo
                 listdays = range(prog_rec.day_week_in, prog_rec.day_week_out + 1)
                 print('listdays',listdays)
-                # miro las horas que trabaja el usuario en esos dias y si tiene
-                # vacaciones
-                # saco las hora disponibles al dia del usuario diccionario (dia:hora)
+                # horas que trabaja
                 listhoursuser_t = UserHourWorkPlanning(listdays,prog_rec,self.mycompany).userhourwork()
-
-
-                # saco las horas que tiene de vacaciones el usuaario en un dicionario
-                # (dia:hora)
+                # horas de vacaciones
                 listhoursholliday_t = UserHourHollidayPlanning(listdays,prog_rec).userhourholliday()
-
-                # saco las horas que tiene en esa semana ya planificadas en un
-                # dicionario (dia:hora)
+                # horas ya planificadas
                 listnowplann_t = UserHourPlannedPlanning(listdays,prog_rec,self.year).userhourplanned()
 
                 # estas son las hoars que dispone el recurso para ser planificado en

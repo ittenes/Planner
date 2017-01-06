@@ -104,24 +104,10 @@ class PetitionCreateUpdateSerializer(ModelSerializer):
             'day_week_in',
             'day_week_out',
             'week_number',
-            'year_pet'
+            'year'
             #'planned',
         )
 
-    # NO SE SI ES NECESARIO HACER ESTO PARA INTRODUCIR LOS DATOS
-    # def get_week_number(self, obj):
-    #     today = datetime.date.today()
-    #     week = today.isocalendar()[1]
-    #     #weekfive = (week + 1, week + 2, week + 3, week + 4, week + 5)
-    #     year_choices = []
-    #     for r in range(, (datetime.datetime.now().week),(datetime.datetime.now().week+4)):
-    #         year_choices.append((r,r))
-    #     weekfive = [(week + 1, week + 1),
-    #                 (week + 2, week + 2),
-    #                 (week + 3, week + 3),
-    #                 (week + 4, week + 4),
-    #                 (week + 5, week + 5)]
-    #     return weekfive
 
     def __init__(self, *args, **kwargs):
         super(PetitionCreateUpdateSerializer, self).__init__(*args, **kwargs)
@@ -130,14 +116,6 @@ class PetitionCreateUpdateSerializer(ModelSerializer):
         mycompany = Company.objects.filter(user=request_user).values_list('id', flat=True)
         self.fields['project'].queryset = Project.objects.filter(company=mycompany)
         self.fields['resource'].queryset = UserCompany.objects.filter(company=mycompany)
-        # select de week's number. only allow select this week or one of the
-        # the next five
-
-    # def get_week_number(self, obj):
-    #     today = datetime.date.today()
-    #     week = today.isocalendar()[1]
-    #     weekfive = (week + 1, week + 2, week + 3, week + 4, week + 5)
-    #     return ('1','2','3')
 
 
 class PetitionDetailSerializer(ModelSerializer):

@@ -1,5 +1,9 @@
 from django.db.models import Q
-
+from django.http import HttpResponse
+from django.http import Http404
+from django.shortcuts import get_object_or_404 as _get_object_or_404
+from rest_framework.response import Response
+from rest_framework import status
 # from rest_framework.filters import(
 #     SearchFilter,
 #     OrderingFilter,
@@ -94,6 +98,23 @@ from .serializers import (
 import datetime
 from collections import Counter
 from .planning import ListProjectsPlanning, ListProjectsOkPlanning, HorsProjectsUserPlanning, PlannedOkPlanning
+
+def get_object_or_404(queryset, *filter_args, **filter_kwargs):
+    """
+    Same as Django's standard shortcut, but make sure to also raise 404
+    if the filter_kwargs don't match the required types.
+    """
+    try:
+        return _get_object_or_404(queryset, *filter_args, **filter_kwargs)
+    except (TypeError, ValueError):
+        raise Http404
+
+
+
+
+
+
+
  # CLIENTS -
 
 class ClientCreateAPIView(CreateAPIView):
@@ -195,19 +216,77 @@ class PetitionCreateAPIView(CreateAPIView):
 class PetitionDetailAPIView(RetrieveAPIView):
     queryset = Petition.objects.all()
     serializer_class = PetitionDetailSerializer
-    lookup_field = 'project'
+    lookup_field = 'id'
 
 class PetitionUpdateAPIView(RetrieveUpdateAPIView):
-    queryset = Petition.objects.all()
+    #queryset = Petition.objects.all()
     serializer_class = PetitionCreateUpdateSerializer
-    lookup_field = 'project'
+    lookup_field = 'id'
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(
+    def get_queryset(self, *args, **kwargs):
+        mycompany = Company.objects.get(user=self.request.user.id)
+        # saber que semana es hoy
+        today = datetime.date(2016,12,17)#datetime.date.today()
+        weekpro = today.isocalendar()[1]
+        year = today.isocalendar()[0]
+        weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
+        queryset_thisyear = Petition.objects.filter(
+            company=mycompany, week_number__gte=weekpro).order_by('project','week_number',)
+        queryset_nextyear = Petition.objects.filter(
+            company=mycompany, week_number__gte=weekpro).order_by('project','week_number',)
+
+        if queryset_thisyear.exists():
+            return queryset_thisyear
+        elif queryset_nextyear.exists():
+            return queryset_nextyear
+        else:
+            print('no hay proyecto')
+
+    def perform_update(self, serializer):
+        instance = serializer.save(
             company=Company.objects.get(user=self.request.user.id),
-            user=AuthUser.objects.get(id=self.request.user.id)
+            user=AuthUser.objects.get(id=self.request.user.id),
+            planned=0
             )
+        project = instance.project
+        week_number = instance.week_number
+        year = instance.year
+
+        # brra todas las planis relacionadas
+        #busco las planis relacinadas a partir de esta planificacion
+        all_petition = []
+
+        all_petition_this_year = Petition.objects.filter(
+            project=project,
+            week_number__gte=week_number,
+            year=year).values_list('id')
+        print ('all_petition_this_year', all_petition_this_year)
+        all_petition += all_petition_this_year
+        all_petition_next_year = Petition.objects.filter(
+            project=project,
+            year=year+1).values_list('id')
+        print ('all_petition_next_year', all_petition_next_year)
+        all_petition += all_petition_next_year
+        print ('all_petition',all_petition)
+
+        for proj in all_petition:
+            print ('proj', proj[0])
+            peti_proj = Petition.objects.get(pk=proj[0])
+            print ('peti_proj', peti_proj.week_number)
+            plan_proj = Planning.objects.filter(
+                week=peti_proj.week_number,
+                project=peti_proj.project,
+                resource=peti_proj.resource
+                ).values_list('id')
+            print ('plan_proj', plan_proj)
+            for id_p in plan_proj:
+                print ('id_p', id_p)
+                PlanningDeleteAPIView().delete(id_p[0])
+        instance.save
+
+
+
 
 class PetitionDeleteAPIView(DestroyAPIView):
     queryset = Petition.objects.all()
@@ -215,9 +294,29 @@ class PetitionDeleteAPIView(DestroyAPIView):
     lookup_field = 'project'
 
 class PetitionListAPIView(ListAPIView):
-    queryset = Petition.objects.all()
     serializer_class = PetitionListSerializer
     permission_classes = [IsAuthenticated]
+
+
+    def get_queryset(self, *args, **kwargs):
+        mycompany = Company.objects.get(user=self.request.user.id)
+        # saber que semana es hoy
+        today = datetime.date(2016,12,19)#datetime.date.today()
+        weekpro = today.isocalendar()[1]
+        year = today.isocalendar()[0]
+        weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
+        # planifico las planis de esta year mayor o igual que esat semana
+        # y les sumo las del year que viene
+        queryset_list = []
+        queryset_list_thisyear = Petition.objects.filter(
+            company=mycompany, week_number__gte=weekpro).order_by('project','week_number',)
+        queryset_list += queryset_list_thisyear
+        queryset_list_nextyear = Petition.objects.filter(
+            company=mycompany, year=year+1).order_by('project','week_number',)
+        queryset_list += queryset_list_nextyear
+        print ('queryset_list', queryset_list)
+        print ('queryset_list_nextyear', queryset_list_nextyear)
+        return queryset_list
 
 
 # PLANNING
@@ -259,9 +358,24 @@ class PlanningDeleteAPIView(DestroyAPIView):
     serializer_class = PlanningDetailSerializer
     lookup_field = 'id'
 
+    def get_object(self, id_p):
+        try:
+            return Planning.objects.get(pk=id_p)
+        except Planning.DoesNotExist:
+            raise Http404
+
+    def delete(self, id_p):
+        self.id_p=id_p
+        object = self.get_object(self.id_p)
+        object.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class PlanningListAPIView(ListAPIView):
     serializer_class = PlanningListSerializer
     permission_classes = [IsAuthenticated]
+
+
 
     def get_queryset(self, *args, **kwargs):
         queryset_list = Planning.objects.filter(company=Company.objects.get(user=self.request.user.id))
