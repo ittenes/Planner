@@ -41,11 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'allauth',
     'allauth.account',
+    'rest_auth.registration',
     'allauth.socialaccount',
     # api_rest
     'rest_framework',
     'drf_generators',
-    'rest_framework_docs',
+    'rest_framework.authtoken',
+    'rest_auth',
     'rest_framework_swagger',
     # mnis app
     'planner_app',
@@ -130,6 +132,27 @@ REST_FRAMEWORK_DOCS = {
     'HIDE_DOCS': False
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 15,
+    'DEFAULT_AUTHENTICATION_CLASSES':
+    (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+
+    )
+}
+
+#Following is added to enable registration with email instead of username
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -152,6 +175,9 @@ STATIC_URL = '/static/'
 # Allauth settings
 SITE_ID = 1
 
+REST_SESSION_LOGIN = True
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
@@ -161,6 +187,18 @@ ACCOUNT_SIGNUP_PASSWORD_VERIFICATION  = True
 
 EMAIL_CONFIRMATION_SIGNUP = False
 
+REST_AUTH_SERIALIZERS = {
+
+}
+
+
+
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+
+
+SWAGGER_SETTINGS = {
+    'LOGIN_URL': 'login',
+    'LOGOUT_URL': 'logout',
+}

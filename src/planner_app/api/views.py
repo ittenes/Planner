@@ -99,6 +99,8 @@ import datetime
 from collections import Counter
 from .planning import ListProjectsPlanning, ListProjectsOkPlanning, HorsProjectsUserPlanning, PlannedOkPlanning
 
+
+
 def get_object_or_404(queryset, *filter_args, **filter_kwargs):
     """
     Same as Django's standard shortcut, but make sure to also raise 404
@@ -108,10 +110,6 @@ def get_object_or_404(queryset, *filter_args, **filter_kwargs):
         return _get_object_or_404(queryset, *filter_args, **filter_kwargs)
     except (TypeError, ValueError):
         raise Http404
-
-
-
-
 
 
 

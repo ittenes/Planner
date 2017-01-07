@@ -3,14 +3,13 @@ from __future__ import absolute_import, unicode_literals
 import re
 
 from django import template
-from django.core.urlresolvers import NoReverseMatch, reverse
 from django.template import loader
 from django.utils import six
 from django.utils.encoding import force_text, iri_to_uri
 from django.utils.html import escape, format_html, smart_urlquote
 from django.utils.safestring import SafeData, mark_safe
 
-from rest_framework.compat import template_render
+from rest_framework.compat import NoReverseMatch, reverse, template_render
 from rest_framework.renderers import HTMLFormRenderer
 from rest_framework.utils.urls import replace_query_param
 
@@ -136,7 +135,8 @@ def add_class(value, css_class):
 @register.filter
 def format_value(value):
     if getattr(value, 'is_hyperlink', False):
-        return mark_safe('<a href=%s>%s</a>' % (value, escape(value.name)))
+        name = six.text_type(value.obj)
+        return mark_safe('<a href=%s>%s</a>' % (value, escape(name)))
     if value is None or isinstance(value, bool):
         return mark_safe('<code>%s</code>' % {True: 'true', False: 'false', None: 'null'}[value])
     elif isinstance(value, list):
