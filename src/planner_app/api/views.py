@@ -241,7 +241,8 @@ class PetitionUpdateAPIView(RetrieveUpdateAPIView):
         elif queryset_nextyear.exists():
             return queryset_nextyear
         else:
-            print('no hay proyecto')
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
 
     def perform_update(self, serializer):
         instance = serializer.save(
@@ -261,31 +262,27 @@ class PetitionUpdateAPIView(RetrieveUpdateAPIView):
             project=project,
             week_number__gte=week_number,
             year=year).values_list('id')
-        print ('all_petition_this_year', all_petition_this_year)
         all_petition += all_petition_this_year
+
         all_petition_next_year = Petition.objects.filter(
             project=project,
             year=year+1).values_list('id')
-        print ('all_petition_next_year', all_petition_next_year)
         all_petition += all_petition_next_year
-        print ('all_petition',all_petition)
-
+        # borro todas las plannis del proyecto
         for proj in all_petition:
-            print ('proj', proj[0])
             peti_proj = Petition.objects.get(pk=proj[0])
-            print ('peti_proj', peti_proj.week_number)
             plan_proj = Planning.objects.filter(
                 week=peti_proj.week_number,
                 project=peti_proj.project,
                 resource=peti_proj.resource
                 ).values_list('id')
-            print ('plan_proj', plan_proj)
+
             for id_p in plan_proj:
-                print ('id_p', id_p)
                 PlanningDeleteAPIView().delete(id_p[0])
+            # las peticiones las reseteo y pongo como no modificadas
+            peti_proj.planned = False
+            peti_proj.save()
         instance.save
-
-
 
 
 class PetitionDeleteAPIView(DestroyAPIView):
