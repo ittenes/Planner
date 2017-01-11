@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'rest_framework_swagger',
+    'crispy_forms',
+    'django_filters',
+    'invitations',
     # mnis app
     'planner_app',
 ]
@@ -135,12 +138,14 @@ REST_FRAMEWORK_DOCS = {
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 15,
-    'DEFAULT_AUTHENTICATION_CLASSES':
-    (
+    'DEFAULT_AUTHENTICATION_CLASSES':(
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        #'rest_framework_filters.backends.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
+        )
 }
 
 #Following is added to enable registration with email instead of username
@@ -152,6 +157,10 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+DEFAULT_AUTHENTICATION_CLASSES = (
+    'rest_framework.authentication.SessionAuthentication',
+    'rest_framework.authentication.BasicAuthentication'
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
@@ -172,30 +181,35 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+#CSRF_COOKIE_SECURE = True
+
 # Allauth settings
 SITE_ID = 1
 
 REST_SESSION_LOGIN = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+#EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_VERIFICATION = ('none')
+ACCOUNT_EMAIL_VERIFICATION = True
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION  = True
+EMAIL_CONFIRMATION_SIGNUP = True
+ACCOUNT_LOGOUT_ON_GET = True
 
-EMAIL_CONFIRMATION_SIGNUP = False
+REST_AUTH_SERIALIZERS = {}
 
-REST_AUTH_SERIALIZERS = {
+ACCOUNT_ADAPTER = 'invitations.models.InvitationsAdapter'
+INVITATIONS_ALLOW_JSON_INVITES = True
+INVITATIONS_INVITATION_ONLY = True
+INVITATIONS_LOGIN_REDIRECT = 'rest-auth/login'
+INVITATIONS_SIGNUP_REDIRECT = '/../../rest-auth/registration'
 
-}
 
-
-
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_URL = '/'
-ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/rest-auth/user'
+LOGOUT_URL = '/rest-auth/login'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/rest-auth/login'
 
 
 SWAGGER_SETTINGS = {

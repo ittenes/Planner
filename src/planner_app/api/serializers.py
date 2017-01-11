@@ -19,7 +19,7 @@ from planner_app.models import (
     ScheduleCompanyUser,
     UserHolidays,
     )
-
+import django_filters
 # CLIENTS
 
 class ClientCreateUpdateSerializer(ModelSerializer):
@@ -229,6 +229,7 @@ class ProjectDetailSerializer(ModelSerializer):
 class ProjectListSerializer(ModelSerializer):
     class Meta:
         model = Project
+        #depth = 1
         fields = (
             #'id',
             'name',

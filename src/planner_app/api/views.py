@@ -1,9 +1,10 @@
-from django.db.models import Q
+
 from django.http import HttpResponse
 from django.http import Http404
 from django.shortcuts import get_object_or_404 as _get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
+
 # from rest_framework.filters import(
 #     SearchFilter,
 #     OrderingFilter,
@@ -99,7 +100,7 @@ import datetime
 from collections import Counter
 from .planning import ListProjectsPlanning, ListProjectsOkPlanning, HorsProjectsUserPlanning, PlannedOkPlanning
 
-
+from .invited import InvitationSend
 
 def get_object_or_404(queryset, *filter_args, **filter_kwargs):
     """
@@ -112,6 +113,47 @@ def get_object_or_404(queryset, *filter_args, **filter_kwargs):
         raise Http404
 
 
+
+
+# COMPANY
+
+class CompanyCreateAPIView(CreateAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanyCreateUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=AuthUser.objects.get(id=self.request.user.id), active="1")
+
+class CompanyDetailAPIView(RetrieveAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanyDetailSerializer
+    lookup_field = 'name'
+
+class CompanyUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanyCreateUpdateSerializer
+    lookup_field = 'name'
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def perform_update(self,serializer):
+        serializer.save(user=AuthUser.objects.get(id=self.request.user.id), active="1")
+
+class CompanyDeleteAPIView(DestroyAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanyDetailSerializer
+    lookup_field = 'name'
+
+
+class CompanyListAPIView(ListAPIView):
+
+    serializer_class = CompanyListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = Company.objects.filter(
+            user=self.request.user.id).order_by('name')
+        return queryset_list
 
  # CLIENTS -
 
@@ -161,41 +203,6 @@ class ClientListAPIView(ListAPIView):
         queryset_list = Client.objects.filter(
             company=mycompany).order_by('name')
         return queryset_list
-
-
-# COMPANY
-
-class CompanyCreateAPIView(CreateAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanyCreateUpdateSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(user=AuthUser.objects.get(id=self.request.user.id), active="1")
-
-class CompanyDetailAPIView(RetrieveAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanyDetailSerializer
-    lookup_field = 'name'
-
-class CompanyUpdateAPIView(RetrieveUpdateAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanyCreateUpdateSerializer
-    lookup_field = 'name'
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-
-    def perform_update(self,serializer):
-        serializer.save(user=AuthUser.objects.get(id=self.request.user.id), active="1")
-
-class CompanyDeleteAPIView(DestroyAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanyDetailSerializer
-    lookup_field = 'name'
-
-class CompanyListAPIView(ListAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanyListSerializer
-    permission_classes = [IsAuthenticated]
 
 
 # PETITION
@@ -289,9 +296,9 @@ class PetitionDeleteAPIView(DestroyAPIView):
     lookup_field = 'project'
 
 class PetitionListAPIView(ListAPIView):
+    #queryset = Petition.objects.all()
     serializer_class = PetitionListSerializer
     permission_classes = [IsAuthenticated]
-
 
     def get_queryset(self, *args, **kwargs):
         mycompany = Company.objects.get(user=self.request.user.id)
@@ -302,15 +309,8 @@ class PetitionListAPIView(ListAPIView):
         weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
         # planifico las planis de esta year mayor o igual que esat semana
         # y les sumo las del year que viene
-        queryset_list = []
-        queryset_list_thisyear = Petition.objects.filter(
-            company=mycompany, week_number__gte=weekpro).order_by('project','week_number',)
-        queryset_list += queryset_list_thisyear
-        queryset_list_nextyear = Petition.objects.filter(
-            company=mycompany, year=year+1).order_by('project','week_number',)
-        queryset_list += queryset_list_nextyear
-        print ('queryset_list', queryset_list)
-        print ('queryset_list_nextyear', queryset_list_nextyear)
+        queryset_list = Petition.objects.filter(
+            company=mycompany,).exclude(week_number__lt=weekpro, year=year).order_by('project','week_number',)
         return queryset_list
 
 
@@ -365,11 +365,9 @@ class PlanningDeleteAPIView(DestroyAPIView):
         object.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 class PlanningListAPIView(ListAPIView):
     serializer_class = PlanningListSerializer
     permission_classes = [IsAuthenticated]
-
 
 
     def get_queryset(self, *args, **kwargs):
@@ -407,10 +405,15 @@ class ProjectDeleteAPIView(DestroyAPIView):
     serializer_class = ProjectDetailSerializer
     lookup_field = 'slug'
 
+
 class ProjectListAPIView(ListAPIView):
-    queryset = Project.objects.all()
     serializer_class = ProjectListSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = Project.objects.filter(company=Company.objects.get(user=self.request.user.id))
+        query = self.request.GET.get("q")
+        return queryset_list
 
 
 # SCHEDULECOMPANY
@@ -491,13 +494,15 @@ class UserCompanyCreateAPIView(CreateAPIView):
     serializer_class = UserCompanyCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
+
     def perform_create(self, serializer):
-        serializer.save(company=Company.objects.get(user=self.request.user.id))
+        instance = serializer.save(company=Company.objects.get(user=self.request.user.id))
+        instance.save
+
         # create de hours by default = of the company hours
         mycompany = Company.objects.get(user=self.request.user.id)
         daysmycoms = ScheduleCompany.objects.filter(company=mycompany).values_list('company_week_day', flat=True)
         user = UserCompany.objects.latest('id')
-
         instances = [ScheduleCompanyUser(
             user=UserCompany.objects.latest('id'),
             schedule_company=ScheduleCompany.objects.get(company=mycompany, company_week_day=e),
@@ -507,6 +512,13 @@ class UserCompanyCreateAPIView(CreateAPIView):
         ]
 
         ScheduleCompanyUser.objects.bulk_create(instances)
+
+        # mando un email para que confirme el registro
+        email = instance.email
+        user = self.request.user
+        request = self.request
+        InvitationSend(user, email, request).invitations()
+
 
 
 class UserCompanyDetailAPIView(RetrieveAPIView):
@@ -531,27 +543,14 @@ class UserCompanyDeleteAPIView(DestroyAPIView):
     serializer_class = UserCompanyDetailSerializer
     lookup_field = 'frit_name'
 
-
 class UserCompanyListAPIView(ListAPIView):
     serializer_class = UserCompanyListSerializer
     permission_classes = [IsAuthenticated]
-    # mira los filtros da un error pero hay que ver si hay installar
-    # una aplicacion especifica
-    # filter_backends = [SearchFilter, OrderingFilter]
-    # search_fields = ['first_name','last_name','type_user']
-
 
     def get_queryset(self, *args, **kwargs):
         queryset_list = UserCompany.objects.filter(
             company=Company.objects.get(user=self.request.user.id)
             )
-        query = self.request.GET.get('q')
-        if query:
-            queryset_list = queryset_list.filter(
-                Q(first_name__icontains=query)|
-                Q(last_name__icontains=query)|
-                Q(type_user__icontains=query)
-                ).distinct()
         return queryset_list
 
 

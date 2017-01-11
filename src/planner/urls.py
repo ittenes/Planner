@@ -26,13 +26,15 @@ urlpatterns = [
     url(r'', include('planner_app.urls')),
     #url(r'', include('api_app.urls')),
 
+    url(r'^invitations/', include('invitations.urls', namespace='invitations')),
+
     #api
     url(r'^api/', include('planner_app.api.urls')),
     # docs
     url(r'^docs/', include('rest_framework_docs.urls')),
 
     url(r'^rest-auth/', include('rest_auth.urls')),
-    
+
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls'))
 
 
