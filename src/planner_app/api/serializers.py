@@ -23,6 +23,7 @@ import django_filters
 # CLIENTS
 
 class ClientCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = Client
         fields = (
@@ -34,6 +35,7 @@ class ClientCreateUpdateSerializer(ModelSerializer):
         )
 
 class ClientDetailSerializer(ModelSerializer):
+
     class Meta:
         model = Client
         fields = (
@@ -45,6 +47,7 @@ class ClientDetailSerializer(ModelSerializer):
         )
 
 class ClientListSerializer(ModelSerializer):
+
     class Meta:
         model = Client
         fields = (
@@ -57,6 +60,7 @@ class ClientListSerializer(ModelSerializer):
 # COMPANY
 
 class CompanyCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = Company
         fields = (
@@ -67,6 +71,7 @@ class CompanyCreateUpdateSerializer(ModelSerializer):
         )
 
 class CompanyDetailSerializer(ModelSerializer):
+
     class Meta:
         model = Company
         fields = (
@@ -78,6 +83,7 @@ class CompanyDetailSerializer(ModelSerializer):
         )
 
 class CompanyListSerializer(ModelSerializer):
+
     class Meta:
         model = Company
         fields = (
@@ -119,6 +125,7 @@ class PetitionCreateUpdateSerializer(ModelSerializer):
 
 
 class PetitionDetailSerializer(ModelSerializer):
+
     class Meta:
         model = Petition
         fields = (
@@ -134,6 +141,7 @@ class PetitionDetailSerializer(ModelSerializer):
         )
 
 class PetitionListSerializer(ModelSerializer):
+
     class Meta:
         model = Petition
         fields = (
@@ -152,6 +160,7 @@ class PetitionListSerializer(ModelSerializer):
  # PLANNING
 
 class PlanningCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = Planning
         fields = (
@@ -166,6 +175,7 @@ class PlanningCreateUpdateSerializer(ModelSerializer):
         )
 
 class PlanningDetailSerializer(ModelSerializer):
+
     class Meta:
         model = Planning
         fields = (
@@ -179,6 +189,7 @@ class PlanningDetailSerializer(ModelSerializer):
         )
 
 class PlanningListSerializer(ModelSerializer):
+
     class Meta:
         model = Planning
         fields = (
@@ -195,6 +206,7 @@ class PlanningListSerializer(ModelSerializer):
 # PROJECT
 
 class ProjectCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = Project
         fields = (
@@ -215,6 +227,7 @@ class ProjectCreateUpdateSerializer(ModelSerializer):
 
 
 class ProjectDetailSerializer(ModelSerializer):
+
     class Meta:
         model = Project
         fields = (
@@ -227,6 +240,7 @@ class ProjectDetailSerializer(ModelSerializer):
         )
 
 class ProjectListSerializer(ModelSerializer):
+
     class Meta:
         model = Project
         #depth = 1
@@ -240,8 +254,9 @@ class ProjectListSerializer(ModelSerializer):
         )
 
 
-# SCHEDULECOMPANY=====================
+# SCHEDULECOMPANY
 class ScheduleCompanyCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = ScheduleCompany
         fields = (
@@ -256,6 +271,7 @@ class ScheduleCompanyCreateUpdateSerializer(ModelSerializer):
             company=Company.objects.get(user=request_user))
 
 class ScheduleCompanyDetailSerializer(ModelSerializer):
+
     class Meta:
         model = ScheduleCompany
         fields = (
@@ -266,6 +282,7 @@ class ScheduleCompanyDetailSerializer(ModelSerializer):
         )
 
 class ScheduleCompanyListSerializer(ModelSerializer):
+
     class Meta:
         model = ScheduleCompany
         fields = (
@@ -276,9 +293,10 @@ class ScheduleCompanyListSerializer(ModelSerializer):
         )
 
 
-# SCHEDULECOMPANYUSER==================
+# SCHEDULECOMPANYUSER
 
 class ScheduleCompanyUserCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = ScheduleCompanyUser
         fields = (
@@ -297,6 +315,7 @@ class ScheduleCompanyUserCreateUpdateSerializer(ModelSerializer):
 
 
 class ScheduleCompanyUserDetailSerializer(ModelSerializer):
+
     class Meta:
         model = ScheduleCompanyUser
         fields = (
@@ -307,6 +326,7 @@ class ScheduleCompanyUserDetailSerializer(ModelSerializer):
         )
 
 class ScheduleCompanyUserListSerializer(ModelSerializer):
+
     class Meta:
         model = ScheduleCompanyUser
         fields = (
@@ -320,6 +340,7 @@ class ScheduleCompanyUserListSerializer(ModelSerializer):
 # USERCOMPANY
 
 class UserCompanyCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = UserCompany
         fields = (
@@ -330,6 +351,7 @@ class UserCompanyCreateUpdateSerializer(ModelSerializer):
         )
 
 class UserCompanyDetailSerializer(ModelSerializer):
+
     class Meta:
         model = UserCompany
         fields = (
@@ -344,6 +366,7 @@ class UserCompanyDetailSerializer(ModelSerializer):
         )
 
 class UserCompanyListSerializer(ModelSerializer):
+
     class Meta:
         model = UserCompany
         fields = (
@@ -360,6 +383,7 @@ class UserCompanyListSerializer(ModelSerializer):
 # USERHOLIDAYS
 
 class UserHolidaysCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = UserHolidays
         fields = (
@@ -406,6 +430,7 @@ class UserHolidaysCreateUpdateSerializer(ModelSerializer):
         #self.fields['week'] = twotuple
 
 class UserHolidaysDetailSerializer(ModelSerializer):
+
     class Meta:
         model = UserHolidays
         fields = (
@@ -417,6 +442,7 @@ class UserHolidaysDetailSerializer(ModelSerializer):
         )
 
 class UserHolidaysListSerializer(ModelSerializer):
+
     class Meta:
         model = UserHolidays
         fields = (
@@ -431,6 +457,7 @@ class UserHolidaysListSerializer(ModelSerializer):
 # WEEKDAY
 
 class WeekDayCreateUpdateSerializer(ModelSerializer):
+
     class Meta:
         model = WeekDay
         fields = (
@@ -438,6 +465,7 @@ class WeekDayCreateUpdateSerializer(ModelSerializer):
         )
 
 class WeekDayDetailSerializer(ModelSerializer):
+
     class Meta:
         model = WeekDay
         fields = (
@@ -445,6 +473,7 @@ class WeekDayDetailSerializer(ModelSerializer):
         )
 
 class WeekDayListSerializer(ModelSerializer):
+
     class Meta:
         model = WeekDay
         fields = (

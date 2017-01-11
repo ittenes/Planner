@@ -43,12 +43,13 @@ class ListProjectsOkPlanning():
     # empezando por la que mas repeticiones tiene
     def listprojectsok(self):
         profirst = []
+
         for key, count in self.repitpro.most_common():
             reqtoplann = Petition.objects.filter(project=key).order_by(
                 'year','week_number','resource').values_list('pk')
             profirst += [(reqtoplann)]
 
-            return profirst
+        return profirst
 
 
 # HORAS DISPONIBLES DEL USUARIO
@@ -119,7 +120,6 @@ class UserHourPlannedPlanning():
         listnowplann_t = []
         for listday in self.listdays:
             try:
-                print ('llego hasta aqui')
                 houruser_plann = Planning.objects.get(
                     resource=self.prog_rec.resource_id,
                     dayweek=listday,

@@ -2,10 +2,10 @@
 
 from django.contrib import messages
 
-from django.contrib.auth import get_user_model
+#from django.contrib.auth import get_user_model
 
 from invitations.models import Invitation
-from invitations.exceptions import AlreadyInvited, AlreadyAccepted, UserRegisteredEmail
+#from invitations.exceptions import AlreadyInvited, AlreadyAccepted, UserRegisteredEmail
 
 from planner_app.models import AuthUser, UserCompany
 

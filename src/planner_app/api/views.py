@@ -95,6 +95,10 @@ from .serializers import (
     WeekDayListSerializer,
 
     )
+import django_filters
+from rest_framework import viewsets
+import rest_framework_filters as filters
+
 
 import datetime
 from collections import Counter
@@ -145,10 +149,16 @@ class CompanyDeleteAPIView(DestroyAPIView):
     lookup_field = 'name'
 
 
+class CompanyFilter(filters.FilterSet):
+
+    class Meta:
+        model = Company
+
 class CompanyListAPIView(ListAPIView):
 
     serializer_class = CompanyListSerializer
     permission_classes = [IsAuthenticated]
+    filter_class = CompanyFilter
 
     def get_queryset(self, *args, **kwargs):
         queryset_list = Company.objects.filter(
@@ -171,8 +181,8 @@ class ClientDetailAPIView(RetrieveAPIView):
 
     def get_queryset(self, *args, **kwargs):
         mycompany = Company.objects.get(user=self.request.user.id)
-        queryset_list = Client.objects.filter(
-            company=mycompany)
+        queryset_list = Client.objects.filter(company=mycompany)
+
         return queryset_list
 
 class ClientUpdateAPIView(RetrieveUpdateAPIView):
@@ -182,8 +192,8 @@ class ClientUpdateAPIView(RetrieveUpdateAPIView):
 
     def get_queryset(self, *args, **kwargs):
         mycompany = Company.objects.get(user=self.request.user.id)
-        queryset_list = Client.objects.filter(
-            company=mycompany)
+        queryset_list = Client.objects.filter(company=mycompany)
+
         return queryset_list
 
     def perform_update(self,serializer):
@@ -194,14 +204,30 @@ class ClientDeleteAPIView(DestroyAPIView):
     serializer_class = ClientDetailSerializer
     lookup_field = 'name'
 
+
+def companys(request):
+    user = request.user.id
+
+    return user.company_set.all()
+
+class ClientFilter(filters.FilterSet):
+    company = filters.RelatedFilter(filterset=CompanyFilter, queryset=Company.objects.all())
+    # name = filters.AllLookupsFilter(name='company')
+    # company = filters.RelatedFilter('planner_app.views.ClientFilter', name='company', queryset=Client.objects.all())
+    class Meta:
+        model = Client
+        fields = {'company'}
+
+
 class ClientListAPIView(ListAPIView):
     serializer_class = ClientDetailSerializer
     permission_classes = [IsAuthenticated]
+    filter_class = ClientFilter
 
     def get_queryset(self, *args, **kwargs):
         mycompany = Company.objects.get(user=self.request.user.id)
-        queryset_list = Client.objects.filter(
-            company=mycompany).order_by('name')
+        queryset_list = Client.objects.filter(company=mycompany).order_by('name')
+
         return queryset_list
 
 
@@ -232,20 +258,27 @@ class PetitionUpdateAPIView(RetrieveUpdateAPIView):
     def get_queryset(self, *args, **kwargs):
         mycompany = Company.objects.get(user=self.request.user.id)
         # saber que semana es hoy
-        today = datetime.date(2016,12,17)#datetime.date.today()
+        today = datetime.date.today()
         weekpro = today.isocalendar()[1]
         year = today.isocalendar()[0]
         weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
         queryset_thisyear = Petition.objects.filter(
-            company=mycompany, week_number__gte=weekpro).order_by('project','week_number',)
+            company=mycompany,
+            week_number__gte=weekpro).order_by('project','week_number',)
         queryset_nextyear = Petition.objects.filter(
-            company=mycompany, week_number__gte=weekpro).order_by('project','week_number',)
+            company=mycompany,
+            week_number__gte=weekpro).order_by('project','week_number',)
 
         if queryset_thisyear.exists():
+
             return queryset_thisyear
+
         elif queryset_nextyear.exists():
+
             return queryset_nextyear
+
         else:
+
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -307,10 +340,14 @@ class PetitionListAPIView(ListAPIView):
         weekpro = today.isocalendar()[1]
         year = today.isocalendar()[0]
         weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
+
         # planifico las planis de esta year mayor o igual que esat semana
         # y les sumo las del year que viene
         queryset_list = Petition.objects.filter(
-            company=mycompany,).exclude(week_number__lt=weekpro, year=year).order_by('project','week_number',)
+            company=mycompany,).exclude(
+                week_number__lt=weekpro,
+                year=year).order_by('project','week_number',)
+
         return queryset_list
 
 
@@ -320,10 +357,7 @@ class PlanningCreateAPIView(CreateAPIView):
     serializer_class = PlanningCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
-
-
     def perform_create(self, serializer):
-
         mycompany = Company.objects.get(user=self.request.user.id)
         # saber que semana es hoy
         today = datetime.date(2016,12,19)#datetime.date.today()
@@ -331,6 +365,7 @@ class PlanningCreateAPIView(CreateAPIView):
         year = today.isocalendar()[0]
         weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
 
+        # comienzo a hacer las planificaciones
         listallplanning = ListProjectsPlanning(mycompany).listprojects()
         print('listallplanning:', listallplanning)
         listallplanningok = ListProjectsOkPlanning(listallplanning).listprojectsok()
@@ -356,22 +391,25 @@ class PlanningDeleteAPIView(DestroyAPIView):
     def get_object(self, id_p):
         try:
             return Planning.objects.get(pk=id_p)
+
         except Planning.DoesNotExist:
+
             raise Http404
 
     def delete(self, id_p):
         self.id_p=id_p
         object = self.get_object(self.id_p)
         object.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PlanningListAPIView(ListAPIView):
     serializer_class = PlanningListSerializer
     permission_classes = [IsAuthenticated]
 
-
     def get_queryset(self, *args, **kwargs):
         queryset_list = Planning.objects.filter(company=Company.objects.get(user=self.request.user.id))
+
         return queryset_list
 
 
@@ -413,6 +451,7 @@ class ProjectListAPIView(ListAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset_list = Project.objects.filter(company=Company.objects.get(user=self.request.user.id))
         query = self.request.GET.get("q")
+
         return queryset_list
 
 
@@ -446,7 +485,9 @@ class ScheduleCompanyListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self, *args, **kwargs):
-        queryset_list = ScheduleCompany.objects.filter(company=Company.objects.get(user=self.request.user.id))
+        queryset_list = ScheduleCompany.objects.filter(
+            company=Company.objects.get(user=self.request.user.id))
+
         return queryset_list
 
 
@@ -482,8 +523,7 @@ class ScheduleCompanyUserListAPIView(ListAPIView):
         mycompany = Company.objects.get(user=self.request.user.id)
         users = UserCompany.objects.filter(
             company=mycompany).values_list('pk', flat=True)
-        queryset_list = ScheduleCompanyUser.objects.filter(
-            user__in=users)
+        queryset_list = ScheduleCompanyUser.objects.filter(user__in=users)
         return queryset_list
 
 
@@ -493,7 +533,6 @@ class UserCompanyCreateAPIView(CreateAPIView):
     queryset = UserCompany.objects.all()
     serializer_class = UserCompanyCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
-
 
     def perform_create(self, serializer):
         instance = serializer.save(company=Company.objects.get(user=self.request.user.id))
@@ -519,13 +558,10 @@ class UserCompanyCreateAPIView(CreateAPIView):
         request = self.request
         InvitationSend(user, email, request).invitations()
 
-
-
 class UserCompanyDetailAPIView(RetrieveAPIView):
     queryset = UserCompany.objects.all()
     serializer_class = UserCompanyDetailSerializer
     lookup_field = 'frit_name'
-
 
 class UserCompanyUpdateAPIView(RetrieveUpdateAPIView):
     queryset = UserCompany.objects.all()
@@ -534,9 +570,7 @@ class UserCompanyUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def perform_update(self,serializer):
-        serializer.save(
-            company=Company.objects.get(user=self.request.user.id)
-            )
+        serializer.save(company=Company.objects.get(user=self.request.user.id))
 
 class UserCompanyDeleteAPIView(DestroyAPIView):
     queryset = UserCompany.objects.all()
@@ -561,12 +595,10 @@ class UserHolidaysCreateAPIView(CreateAPIView):
     serializer_class = UserHolidaysCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
-
 class UserHolidaysDetailAPIView(RetrieveAPIView):
     queryset = UserHolidays.objects.all()
     serializer_class = CompanyDetailSerializer
     lookup_field = 'company_week_day'
-
 
 class UserHolidaysUpdateAPIView(RetrieveUpdateAPIView):
     queryset = UserHolidays.objects.all()
@@ -625,6 +657,7 @@ class WeekDayListAPIView(ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         queryset_list = WeekDay.objects.filter(company=Company.objects.get(user=self.request.user.id))
+
         return queryset_list
 
 
