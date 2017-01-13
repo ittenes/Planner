@@ -58,7 +58,7 @@ class Client(models.Model):
 class Company(models.Model):
     name = models.CharField(max_length=75)
     user = models.ForeignKey('AuthUser', models.DO_NOTHING)
-    active = models.IntegerField()
+    active = models.IntegerField(default=True)
     slug = models.CharField(max_length=150)
 
 
@@ -154,6 +154,7 @@ class ScheduleCompany(models.Model):
     company_week_day = models.ForeignKey('WeekDay', models.DO_NOTHING)
     hours = models.IntegerField()
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
+    active = models.IntegerField( default=True)
 
     def __str__(self):
         srtday = str(self.company_week_day)
@@ -170,6 +171,7 @@ class ScheduleCompanyUser(models.Model):
     user = models.ForeignKey('UserCompany', models.DO_NOTHING, null=True)
     schedule_company = models.ForeignKey(ScheduleCompany, models.DO_NOTHING)
     hour = models.IntegerField()
+    active = models.IntegerField( default=True)
 
     class Meta:
         managed = True
@@ -186,6 +188,7 @@ class UserCompany(models.Model):
     email = models.CharField(max_length=50)
     user = models.ForeignKey('AuthUser', models.DO_NOTHING,blank=True, null=True)
     slug = models.CharField(max_length=150, null=True)
+    active = models.IntegerField( default=True)
 
     def __str__(self): return self.first_name
 
@@ -224,6 +227,7 @@ class UserType(models.Model):
 class WeekDay(models.Model):
     daywork = models.ForeignKey('DayName', models.DO_NOTHING)
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
+    active = models.IntegerField(default=True)
 
     def __str__(self): #return self.daywork
         daynames = str(self.daywork)

@@ -33,6 +33,7 @@ from planner_app.models import (
     AuthUser,
     Client,
     Company,
+    DayName,
     Petition,
     Planning,
     Project,
@@ -41,6 +42,7 @@ from planner_app.models import (
     UserCompany,
     UserHolidays,
     WeekDay,
+
     )
 
 from .serializers import (
@@ -128,6 +130,16 @@ class CompanyCreateAPIView(CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=AuthUser.objects.get(id=self.request.user.id), active="1")
+
+        instances = []
+        days = DayName.objects.all()
+        for day in days:
+            instances += [WeekDay(
+                daywork=day,
+                company=Company.objects.get(user=self.request.user.id),
+                active=False)]
+
+        WeekDay.objects.bulk_create(instances)
 
 class CompanyDetailAPIView(RetrieveAPIView):
     queryset = Company.objects.all()
