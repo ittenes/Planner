@@ -1,4 +1,4 @@
-#!/Users/antonio.rivera/Documents/Projectos/django/Planner/myvenv/bin/python3
+#!/Users/antonio.rivera/Documents/Proyectos/Planner/myvenv/bin/python3
 
 # Author: 
 # Contact: grubert@users.sf.net
