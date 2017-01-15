@@ -12,7 +12,9 @@ from planner_app.models import (
     Company,
     Petition,
     Planning,
+    PlanningStatus,
     Project,
+    ProjectStatus,
     UserCompany,
     WeekDay,
     ScheduleCompany,
@@ -110,7 +112,8 @@ class PetitionCreateUpdateSerializer(ModelSerializer):
             'day_week_in',
             'day_week_out',
             'week_number',
-            'year'
+            'year',
+            'planning_status',
             #'planned',
         )
 
@@ -121,7 +124,10 @@ class PetitionCreateUpdateSerializer(ModelSerializer):
         request_user = self.context['request'].user.id
         mycompany = Company.objects.filter(user=request_user).values_list('id', flat=True)
         self.fields['project'].queryset = Project.objects.filter(company=mycompany)
-        self.fields['resource'].queryset = UserCompany.objects.filter(company=mycompany)
+        self.fields['resource'].queryset = UserCompany.objects.filter(company=mycompany, active=1)
+        self.fields['day_week_in'].queryset = WeekDay.objects.filter(company=mycompany)
+        self.fields['day_week_out'].queryset = WeekDay.objects.filter(company=mycompany)
+        self.fields['planning_status'].queryset = PlanningStatus.objects.all()
 
 
 class PetitionDetailSerializer(ModelSerializer):
@@ -138,6 +144,7 @@ class PetitionDetailSerializer(ModelSerializer):
             'day_week_out',
             'week_number',
             'planned',
+            'planning_status',
         )
 
 class PetitionListSerializer(ModelSerializer):
@@ -186,6 +193,7 @@ class PlanningDetailSerializer(ModelSerializer):
             'dayweek',
             'hours',
             'company',
+            'planning_status',
         )
 
 class PlanningListSerializer(ModelSerializer):
@@ -200,6 +208,7 @@ class PlanningListSerializer(ModelSerializer):
             'dayweek',
             'hours',
             'company',
+            'planning_status',
         )
 
 
@@ -223,7 +232,7 @@ class ProjectCreateUpdateSerializer(ModelSerializer):
         request_user = self.context['request'].user.id
         self.fields['client'].queryset = Client.objects.filter(
             company=Company.objects.get(user=request_user))
-
+        self.fields['status'].queryset = ProjectStatus.objects.all()
 
 
 class ProjectDetailSerializer(ModelSerializer):
@@ -363,6 +372,7 @@ class UserCompanyDetailSerializer(ModelSerializer):
             'last_name',
             'email',
             'user',
+            'active',
         )
 
 class UserCompanyListSerializer(ModelSerializer):
@@ -377,6 +387,7 @@ class UserCompanyListSerializer(ModelSerializer):
             'last_name',
             'email',
             'user',
+            'active',
         )
 
 
