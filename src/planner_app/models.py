@@ -70,6 +70,16 @@ class Company(models.Model):
         unique_together = (('user', 'name'), ('user', 'active'))
         verbose_name_plural = 'Companys'
 
+class PlanningStatus(models.Model):
+    name = models.CharField(max_length=75, null=True)
+
+    def __str__(self): return self.name
+
+    class Meta:
+        managed = True
+        db_table = 'planning_status'
+        verbose_name_plural = 'PlanningStatuss'
+
 
 class Planning(models.Model):
     project = models.ForeignKey('Project', models.DO_NOTHING,)
@@ -79,29 +89,32 @@ class Planning(models.Model):
     year = models.IntegerField(blank=True, null=True)
     hours = models.IntegerField()
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
+    planning_status = models.ForeignKey('PlanningStatus', models.DO_NOTHING, default=True)
+
     class Meta:
         managed = True
         db_table = 'planning'
         verbose_name_plural = 'Plannings'
 
 class ProjectStatus(models.Model):
-    name = models.CharField(max_length=75, null=True)
+    name = models.CharField(max_length=75, null=True,)
 
     def __str__(self): return self.name
 
     class Meta:
         managed = True
         db_table = 'project_status'
-        verbose_name_plural = 'ProjectsStatus'
+        verbose_name_plural = 'ProjectsStatuss'
 
 
 
 class Project(models.Model):
-    client = models.ForeignKey(Client, models.DO_NOTHING,)
+    client = models.ForeignKey('Client', models.DO_NOTHING,)
     name = models.CharField(max_length=50, blank=True, null=True)
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
-    status = models.ForeignKey(ProjectStatus, models.DO_NOTHING, null=False)
+    status = models.ForeignKey('ProjectStatus', models.DO_NOTHING, default=True)
     slug = models.CharField(max_length=150, null=True)
+    planning_status = models.ForeignKey('PlanningStatus', models.DO_NOTHING, default=True)
 
     def __str__(self): return self.name
 
@@ -135,6 +148,7 @@ class Petition(models.Model):
     year = models.IntegerField(blank=True, null=True)
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
     planned = models.BooleanField(default=False)
+    planning_status = models.ForeignKey('PlanningStatus', models.DO_NOTHING, default=True)
 
     class Meta:
         managed = True
@@ -186,7 +200,7 @@ class UserCompany(models.Model):
     first_name = models.CharField(max_length=50,blank=True)
     last_name = models.CharField(max_length=50,blank=True, null=True)
     email = models.CharField(max_length=50)
-    user = models.ForeignKey('AuthUser', models.DO_NOTHING,blank=True, null=True)
+    user = models.ForeignKey('AuthUser', models.DO_NOTHING,blank=True, null=True,)
     slug = models.CharField(max_length=150, null=True)
     active = models.IntegerField( default=True)
 
@@ -200,7 +214,7 @@ class UserCompany(models.Model):
 
 
 class UserHolidays(models.Model):
-    user = models.ForeignKey('UserCompany', models.DO_NOTHING, null=True)
+    user = models.ForeignKey('UserCompany', models.DO_NOTHING, null=True, )
     schedule_company = models.ForeignKey(ScheduleCompany, models.DO_NOTHING)
     hour = models.IntegerField(null=True)
     week = models.IntegerField(blank=True, null=True)

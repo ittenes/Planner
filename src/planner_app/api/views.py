@@ -36,6 +36,7 @@ from planner_app.models import (
     DayName,
     Petition,
     Planning,
+    PlanningStatus,
     Project,
     ScheduleCompany,
     ScheduleCompanyUser,
@@ -267,6 +268,7 @@ class PetitionCreateAPIView(CreateAPIView):
             user=AuthUser.objects.get(id=self.request.user.id)
             )
 
+
 class PetitionDetailAPIView(RetrieveAPIView):
     queryset = Petition.objects.all()
     serializer_class = PetitionDetailSerializer
@@ -293,15 +295,12 @@ class PetitionUpdateAPIView(RetrieveUpdateAPIView):
             week_number__gte=weekpro).order_by('project','week_number',)
 
         if queryset_thisyear.exists():
-
             return queryset_thisyear
 
         elif queryset_nextyear.exists():
-
             return queryset_nextyear
 
         else:
-
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -315,7 +314,7 @@ class PetitionUpdateAPIView(RetrieveUpdateAPIView):
         week_number = instance.week_number
         year = instance.year
 
-        # brra todas las planis relacionadas
+        # borra todas las planis relacionadas
         #busco las planis relacinadas a partir de esta planificacion
         all_petition = []
 
@@ -383,7 +382,7 @@ class PlanningCreateAPIView(CreateAPIView):
     def perform_create(self, serializer):
         mycompany = Company.objects.get(user=self.request.user.id)
         # saber que semana es hoy
-        today = datetime.date(2016,12,19)#datetime.date.today()
+        today = datetime.date.today()#datetime.date(2016,12,19)#
         weekpro = today.isocalendar()[1]
         year = today.isocalendar()[0]
         weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
@@ -416,7 +415,6 @@ class PlanningDeleteAPIView(DestroyAPIView):
             return Planning.objects.get(pk=id_p)
 
         except Planning.DoesNotExist:
-
             raise Http404
 
     def delete(self, id_p):
@@ -496,7 +494,64 @@ class ScheduleCompanyUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def perform_update(self,serializer):
-        serializer.save(company=Company.objects.get(user=self.request.user.id))
+        instance = serializer.save(company=Company.objects.get(user=self.request.user.id))
+        instance.save
+        # borro todas las planificiaciones ya que las horas disponibles se han
+        # modificado
+        today = datetime.date.today()#datetime.date(2016,12,19)#
+        weekpro = today.isocalendar()[1]
+        year = today.isocalendar()[0]
+        weeksyear = datetime.date(year, 12, 28).isocalendar()[1]
+
+        mycompany = Company.objects.get(user=self.request.user.id)
+        projects = Project.objects.filter(company=mycompany)
+        week_number = weekpro
+        year = year
+
+        # borra todas las planis relacionadas
+        #busco las planis relacinadas a partir de esta planificacion
+        for project in projects:
+
+            all_petition = []
+
+            all_petition_this_year = Petition.objects.filter(
+                project=project,
+                week_number__gte=week_number,
+                year=year).values_list('id')
+            all_petition += all_petition_this_year
+
+            all_petition_next_year = Petition.objects.filter(
+                project=project,
+                year=year+1).values_list('id')
+            all_petition += all_petition_next_year
+            # borro todas las plannis del proyecto
+            for proj in all_petition:
+                peti_proj = Petition.objects.get(pk=proj[0])
+                plan_proj = Planning.objects.filter(
+                    week=peti_proj.week_number,
+                    project=peti_proj.project,
+                    resource=peti_proj.resource
+                    ).values_list('id')
+
+                for id_p in plan_proj:
+                    PlanningDeleteAPIView().delete(id_p[0])
+                # las peticiones las reseteo y pongo como no modificadas
+                peti_proj.planned = False
+                peti_proj.planning_status = PlanningStatus.objects.get(id=3)
+                peti_proj.save()
+
+        # adapto el horario de los trabajadores a la hora de la empresa
+        # siempre que este sea mayor que la hora introducida
+        users = UserCompany.objects.filter(company=mycompany)
+        for user in users:
+            schedule_user = ScheduleCompanyUser.objects.get(user=user, schedule_company=instance.id)
+            print('schedule_user', schedule_user.hour)
+            print('instance.hours:', instance.hours)
+            if schedule_user.hour > instance.hours:
+                schedule_user.hour = instance.hours
+                schedule_user.save()
+
+
 
 class ScheduleCompanyDeleteAPIView(DestroyAPIView):
     queryset = ScheduleCompany.objects.all()
@@ -532,6 +587,11 @@ class ScheduleCompanyUserUpdateAPIView(RetrieveUpdateAPIView):
     lookup_field = 'user'
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
+    def perform_update(self, serializer):
+        PetitionDetailAPIView
+
+
+
 class ScheduleCompanyUserDeleteAPIView(DestroyAPIView):
     queryset = ScheduleCompanyUser.objects.all()
     serializer_class = ScheduleCompanyUserDetailSerializer
@@ -561,7 +621,7 @@ class UserCompanyCreateAPIView(CreateAPIView):
         instance = serializer.save(company=Company.objects.get(user=self.request.user.id))
         instance.save
 
-        # create de hours by default = of the company hours
+        # create de hours by default = hours of the company
         mycompany = Company.objects.get(user=self.request.user.id)
         daysmycoms = ScheduleCompany.objects.filter(company=mycompany).values_list('company_week_day', flat=True)
         user = UserCompany.objects.latest('id')
@@ -575,11 +635,17 @@ class UserCompanyCreateAPIView(CreateAPIView):
 
         ScheduleCompanyUser.objects.bulk_create(instances)
 
-        # mando un email para que confirme el registro
-        email = instance.email
-        user = self.request.user
-        request = self.request
-        InvitationSend(user, email, request).invitations()
+        # send a invitation to register
+        if AuthUser.objects.get(email=instance.email):
+            user = AuthUser.objects.get(email=instance.email)
+            instance.email = user.email
+            instance.user = AuthUser.objects.get(email=instance.email)
+            instance.save()
+        else:
+            email = instance.email
+            user = self.request.user
+            request = self.request
+            InvitationSend(user, email, request).invitations()
 
 class UserCompanyDetailAPIView(RetrieveAPIView):
     queryset = UserCompany.objects.all()
@@ -594,6 +660,7 @@ class UserCompanyUpdateAPIView(RetrieveUpdateAPIView):
 
     def perform_update(self,serializer):
         serializer.save(company=Company.objects.get(user=self.request.user.id))
+
 
 class UserCompanyDeleteAPIView(DestroyAPIView):
     queryset = UserCompany.objects.all()
