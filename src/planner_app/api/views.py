@@ -42,6 +42,7 @@ from planner_app.models import (
     ScheduleCompanyUser,
     UserCompany,
     UserHolidays,
+    UserType,
     WeekDay,
 
     )
@@ -141,6 +142,16 @@ class CompanyCreateAPIView(CreateAPIView):
                 active=False)]
 
         WeekDay.objects.bulk_create(instances)
+
+        user = AuthUser.objects.get(id=self.request.user.id)
+        owner = UserCompany(
+            company=Company.objects.get(user=self.request.user.id),
+            type_user=UserType.objects.get(id=1),
+            first_name=self.request.user.first_name,
+            last_name=self.request.user.last_name,
+            email=self.request.user.email,
+            user=user,)
+        owner.save()
 
 class CompanyDetailAPIView(RetrieveAPIView):
     queryset = Company.objects.all()
