@@ -5,9 +5,11 @@ coreapi==2.1.1
 defusedxml==0.4.1
 Django==1.10
 django-allauth==0.27.0
+django-braces==1.10.0
 django-crispy-forms==1.6.1
 django-filter==0.15.3
 django-guardian==1.4.5
+django-invitations==1.8
 django-rest-auth==0.8.2
 django-rest-swagger==2.1.0
 djangorestframework==3.5.3
