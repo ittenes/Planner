@@ -89,7 +89,7 @@ class Planning(models.Model):
     year = models.IntegerField(blank=True, null=True)
     hours = models.IntegerField()
     company = models.ForeignKey('Company', models.DO_NOTHING, null=True)
-    planning_status = models.ForeignKey('PlanningStatus', models.DO_NOTHING, default=True)
+    planning_status = models.ForeignKey(PlanningStatus, models.DO_NOTHING,)
 
     class Meta:
         managed = True
