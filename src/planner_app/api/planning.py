@@ -51,6 +51,23 @@ class ListProjectsOkPlanning():
 
         return profirst
 
+class ListProjectsOkPlanning():
+
+    def __init__(self, repitpro):
+        self.repitpro = repitpro
+    # agrupo todas las planificaciones hechas de esos proyectos
+    # empezando por la que mas repeticiones tiene
+    def listprojectsok(self):
+        profirst = []
+
+        for key, count in self.repitpro.most_common():
+            reqtoplann = Petition.objects.filter(project=key).order_by(
+                'year','week_number','resource').values_list('pk')
+            profirst += [(reqtoplann)]
+
+        return profirst
+
+
 
 # HORAS DISPONIBLES DEL USUARIO
 class UserHourWorkPlanning():
@@ -152,9 +169,7 @@ class HorsProjectsUserPlanning():
             useralltime = []
             dic_weekandhours = []
             for prog in listproj:
-
                 print('prog', prog)
-
                 profirst_list.append(prog)
 
                 # programo cada proyecto de la lista creada
@@ -205,15 +220,14 @@ class HorsProjectsUserPlanning():
 
             print('dic_weekandhours:', dic_weekandhours)
 
-            if total_user_time < total_project_time:
-                print ('no se planifica:', profirst_list)
-
-            else:
+            if  total_project_time >= total_user_time:
                 print ('si se planifica:', profirst_list)
                 #return profirst_list,total_project_time,total_user_time
                 print('totales:',profirst_list,total_user_time,total_project_time)
                 PlannedOkPlanning(dic_weekandhours).plannedok()
-
+            else:
+                print ('no se planifica:', profirst_list)
+                pass
 
 
 class PlannedOkPlanning():

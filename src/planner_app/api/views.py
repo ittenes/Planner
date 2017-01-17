@@ -394,6 +394,9 @@ class PlanningCreateAPIView(CreateAPIView):
         print('listallplanningok:', listallplanningok)
         hoursprojectsuser = HorsProjectsUserPlanning(listallplanningok,year,mycompany).horasprojectsuser()
 
+        listallplanning2 = ListProjectsPlanning(mycompany).listprojects()
+        print('listallplanning2:', listallplanning2)
+
 class PlanningDetailAPIView(RetrieveAPIView):
     queryset = Planning.objects.all()
     serializer_class = PlanningDetailSerializer
