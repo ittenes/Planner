@@ -12,7 +12,7 @@ from planner_app.models import AuthUser, UserCompany
 class InvitationSend():
     """This invitatione is a class of django-invitations for rest_framework."""
 
-    def __init__(self, user, email,request, *args, **kwargs):
+    def __init__(self, user, email, request, *args, **kwargs):
         self.user = user #AuthUser.objects.get(pk=user)
         self.email = email
         self.request = request

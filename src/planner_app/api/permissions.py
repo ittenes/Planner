@@ -2,7 +2,6 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 from planner_app.models import AuthUser, Company
 
-
 class IsOwnerOrReadOnly(BasePermission):
     message = 'You must be member of this Comapny.'
     my_safe_method = ['GET', 'PUT']
