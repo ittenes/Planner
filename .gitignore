@@ -3,4 +3,19 @@ __MACOSX
 .DS_Store
 **/__pycache__/*
 *.pyc
-**/myvenv
+myvenv/*
+
+
+# Mac OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
